@@ -62,8 +62,8 @@ function initShaderProgram(gl, vsSource, fsSource) {
     }
 
     const shaderProgram = gl.createProgram();
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
+    gl.attachShader(shaderProgram, vs);
+    gl.attachShader(shaderProgram, fs);
     gl.linkProgram(shaderProgram);
 
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
