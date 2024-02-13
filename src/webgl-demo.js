@@ -1,3 +1,6 @@
+import { initBuffers } from "./init-buffers";
+import { drawScene } from "./draw-scene";
+
 main();
 
 function main() {
@@ -30,6 +33,11 @@ function main() {
     `;
 
     const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+    
+    if (!shaderProgram) {
+        return;
+    }
+
     const programInfo = {
         program: shaderProgram,
         attribLocations: {
@@ -40,6 +48,9 @@ function main() {
             modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
         },
     };
+
+    const buffers = initBuffers(gl);
+    drawScene(gl, programInfo, buffers);
 }
 
 function initShaderProgram(gl, vsSource, fsSource) {
@@ -59,6 +70,8 @@ function initShaderProgram(gl, vsSource, fsSource) {
         alert(`Error initializing shader program: ${gl.getProgramInfoLog(shaderProgram)}`);
         return;
     }
+
+    return shaderProgram;
 }
 
 function loadShader(gl, type, source) {
