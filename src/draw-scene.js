@@ -40,17 +40,17 @@ export function drawScene(gl, programInfo, buffers) {
         modelViewMatrix,
     );
 
-    const offset = 0;
-    const vertexCount = 4;
+    const offset = 0; // starting index in the array of vector points
+    const vertexCount = 4; // number of vertices to be drawn
     gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
 }
 
 function setPositionAttribute(gl, programInfo, buffers) {
-    const numComponents = 2;
+    const numComponents = 2; // number of components per vertex attribute, in this case we only specified x and y coordinates
     const type = gl.FLOAT;
     const normalize = false;
-    const stride = 0;
-    const offset = 0;
+    const stride = 0; // offset of bytes in between consecutive vertex attributes
+    const offset = 0; // offset in bytes of the first component in the vertex attribute array
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
     gl.vertexAttribPointer(
         programInfo.attribLocations.vertexPosition,

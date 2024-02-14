@@ -12,9 +12,6 @@ function main() {
         return;
     }
 
-    gl.clearColor(0.0,0.0,0.0,1.0); // Set clear color to black, fully opaque
-    gl.clear(gl.COLOR_BUFFER_BIT); // Clear the color buffer with specified clear color
-
     // Vertex shader program
     const vsSource = `
     attribute vec4 aVertexPosition;
