@@ -25,6 +25,7 @@ export function drawScene(gl, programInfo, buffers) {
     );
 
     setPositionAttribute(gl, programInfo, buffers);
+    setColorAttribute(gl, programInfo, buffers);
 
     gl.useProgram(programInfo.program);
 
@@ -61,4 +62,22 @@ function setPositionAttribute(gl, programInfo, buffers) {
         offset,
     );
     gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+}
+
+function setColorAttribute(gl, programInfo, buffers) {
+    const numComponents = 4;
+    const type = gl.FLOAT;
+    const normalize = false;
+    const stride = 0;
+    const offset = 0;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+    gl.vertexAttribPointer(
+        programInfo.attribLocations.vertexColor,
+        numComponents,
+        type,
+        normalize,
+        stride,
+        offset,
+    );
+    gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
 }
