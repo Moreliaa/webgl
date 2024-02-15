@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8"><meta>
         <title>WebGL Demo</title>
+        <link rel="stylesheet" href="./style.css" type="text/css" />
         <!--Cannot use gl-matrix 3.4.x due to breaking changes, missing exports. -->
         <script 
             src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
@@ -14,6 +15,11 @@
     </head>
 
     <body>
-        <canvas id="glcanvas" width="640" height="480"></canvas>
+        <div id="container">
+            <div id="overlay">
+                <div>Square Rotation (Deg): <span id="squareRotation"></span></div>
+            </div>
+            <canvas id="glcanvas" width="640" height="480"></canvas>
+        </div>
     </body>
 </html>

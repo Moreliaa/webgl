@@ -1,4 +1,4 @@
-export function drawScene(gl, programInfo, buffers) {
+export function drawScene(gl, programInfo, buffers, squareRotation) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
@@ -22,6 +22,13 @@ export function drawScene(gl, programInfo, buffers) {
         modelViewMatrix, // destination
         modelViewMatrix, // source
         [0.0, 0.0, zOffset_plane],
+    );
+
+    mat4.rotate(
+        modelViewMatrix,
+        modelViewMatrix,
+        squareRotation, // amount to rotate in radians
+        [0, 0, 1], // rotation axis
     );
 
     setPositionAttribute(gl, programInfo, buffers);

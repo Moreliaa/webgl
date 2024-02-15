@@ -4,6 +4,9 @@ import { drawScene } from "./draw-scene.js";
 main();
 
 function main() {
+    let squareRotation = 0.0; // rotation in rad
+    let deltaTime = 0;
+
     const canvas = document.querySelector("#glcanvas");
     const gl = canvas.getContext("webgl");
 
@@ -57,7 +60,25 @@ function main() {
     };
 
     const buffers = initBuffers(gl);
-    drawScene(gl, programInfo, buffers);
+
+    const spanSquareRotation = document.querySelector("#squareRotation");
+
+    let then = 0;
+    function render(now) {
+        now *= 0.001; // conversion to seconds
+        deltaTime = now - then;
+        then = now;
+
+        drawScene(gl, programInfo, buffers, squareRotation);
+        squareRotation = (squareRotation + deltaTime) % (Math.PI * 2);
+
+        spanSquareRotation.innerHTML = (squareRotation * (180 / Math.PI)).toFixed(1);
+
+        requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+
 }
 
 function initShaderProgram(gl, vsSource, fsSource) {
