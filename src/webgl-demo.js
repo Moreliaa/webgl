@@ -9,9 +9,15 @@ function main() {
 
     button_rs_demo.onclick = function() {
         runRotatingSquareDemo();
+        button_rs_demo.classList.add("active");
+        button_cube3d_demo.classList.remove("active");
     };
 
     button_cube3d_demo.onclick = function() {
         runCube3DDemo();
+        button_rs_demo.classList.remove("active");
+        button_cube3d_demo.classList.add("active");
     };
+
+    button_cube3d_demo.click();
 }
