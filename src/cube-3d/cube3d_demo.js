@@ -66,6 +66,10 @@ export function runCube3DDemo() {
         return document.querySelector("#button_cube3d_demo").classList.contains("active");
     }
 
+    document.querySelector("#input_cube3d_fov").addEventListener("change", function (event) {
+        document.querySelector("#input_cube3d_fov").setAttribute("value", event.target.value);
+    });
+
     let then = 0;
     function render(now) {
         now *= 0.001; // conversion to seconds
@@ -77,7 +81,14 @@ export function runCube3DDemo() {
             return;
         }
 
-        drawScene(gl, programInfo, buffers, cubeRotation);
+        let settings = {
+            fov: document.querySelector("#input_cube3d_fov").getAttribute("value"),
+            cube_translation: [0.0, 0.0, -6.0],
+            cube_rotationSpeed: [0.3, 0.7, 1.0],
+        };
+        console.log(settings.fov);
+
+        drawScene(gl, programInfo, buffers, cubeRotation, settings);
         cubeRotation = (cubeRotation + deltaTime); // animation loops every 3600° deg
 
         spanSquareRotation.textContent = (cubeRotation * (180 / Math.PI)).toFixed(1);

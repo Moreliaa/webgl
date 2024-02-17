@@ -1,4 +1,4 @@
-export function drawScene(gl, programInfo, buffers, cubeRotation) {
+export function drawScene(gl, programInfo, buffers, cubeRotation, settings) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
@@ -6,7 +6,7 @@ export function drawScene(gl, programInfo, buffers, cubeRotation) {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const fieldOfView = (45 * Math.PI) / 180; // conversion to rad
+    const fieldOfView = (settings.fov * Math.PI) / 180; // conversion to rad
     const aspectRatio = gl.canvas.clientWidth / gl.canvas.clientHeight;
     const zNear = 0.1;
     const zFar = 100.0;
@@ -16,38 +16,35 @@ export function drawScene(gl, programInfo, buffers, cubeRotation) {
 
     const modelViewMatrix = mat4.create();
 
-    // translate square plane away from the camera by 6 units
-    const zOffset_plane = -6.0;
     mat4.translate(
         modelViewMatrix, // destination
         modelViewMatrix, // source
-        [0.0, 0.0, zOffset_plane],
+        settings.cube_translation,
     );
 
     mat4.rotate(
         modelViewMatrix,
         modelViewMatrix,
-        cubeRotation, // amount to rotate in radians
+        cubeRotation * settings.cube_rotationSpeed[2], // amount to rotate in radians
         [0, 0, 1], // rotation axis
     );
     mat4.rotate(
         modelViewMatrix,
         modelViewMatrix,
-        cubeRotation * 0.7, // amount to rotate in radians
+        cubeRotation * settings.cube_rotationSpeed[1], // amount to rotate in radians
         [0, 1, 0], // rotation axis
     );
     mat4.rotate(
         modelViewMatrix,
         modelViewMatrix,
-        cubeRotation * 0.3, // amount to rotate in radians
-        [1, 0, 0], // rotation axis
+        cubeRotation * settings.cube_rotationSpeed[0], // amount to rotate in radians
+        [0, 0, 0], // rotation axis
     );
 
     setPositionAttribute(gl, programInfo, buffers);
     setColorAttribute(gl, programInfo, buffers);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.index);
-
     gl.useProgram(programInfo.program);
 
     gl.uniformMatrix4fv(
