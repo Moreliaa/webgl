@@ -62,18 +62,30 @@ export function runCube3DDemo() {
 
     const spanSquareRotation = document.querySelector("#squareRotation");
 
+    function isActive() {
+        return document.querySelector("#button_cube3d_demo").classList.contains("active");
+    }
+
     let then = 0;
     function render(now) {
         now *= 0.001; // conversion to seconds
         deltaTime = now - then;
+        let isFirstFrame = then == 0;
         then = now;
+        if (isFirstFrame) { // restart animation at 0 degrees rotation
+            requestAnimationFrame(render);
+            return;
+        }
 
         drawScene(gl, programInfo, buffers, cubeRotation);
         cubeRotation = (cubeRotation + deltaTime); // animation loops every 3600° deg
 
         spanSquareRotation.textContent = (cubeRotation * (180 / Math.PI)).toFixed(1);
 
-        requestAnimationFrame(render);
+        if (isActive()) {
+            requestAnimationFrame(render);
+        }
+        
     }
 
     requestAnimationFrame(render);
