@@ -15,11 +15,18 @@
     </head>
 
     <body>
-        <div id="container">
-            <div id="overlay">
-                <div>Rotation (Deg): <span id="squareRotation"></span></div>
+        <div id="topRow">
+            <div id="container">
+                <div id="overlay">
+                    <div>Rotation (Deg): <span id="squareRotation"></span></div>
+                </div>
+                <canvas id="glcanvas" width="640" height="480"></canvas>
             </div>
-            <canvas id="glcanvas" width="640" height="480"></canvas>
+            <div id="controls_webgl">
+                <input class="input" value="45" type="number" id="input_cube3d_fov">FOV</input>
+                <input class="input" value="0.0,0.0,-6.0" type="text" id="input_cube3d_translation">Translation</input>
+                <input class="input" value="0.3,0.7,1.0" type="text" id="input_cube3d_rotationSpeed">Rotation Speed</input>
+            </div>
         </div>
         <div id="controls">
             <button id="button_rs_demo">Square</button>
