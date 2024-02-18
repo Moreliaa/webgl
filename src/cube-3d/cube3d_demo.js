@@ -34,6 +34,12 @@ export function runCube3DDemo() {
     document.querySelector("#input_cube3d_fov").addEventListener("change", function (event) {
         document.querySelector("#input_cube3d_fov").setAttribute("value", event.target.value);
     });
+    document.querySelector("#input_cube3d_translation").addEventListener("change", function (event) {
+        document.querySelector("#input_cube3d_translation").setAttribute("value", event.target.value);
+    });
+    document.querySelector("#input_cube3d_rotationSpeed").addEventListener("change", function (event) {
+        document.querySelector("#input_cube3d_rotationSpeed").setAttribute("value", event.target.value);
+    });
 
     let then = 0;
     function render(now) {
@@ -49,8 +55,8 @@ export function runCube3DDemo() {
         let settings = {
             fov: document.querySelector("#input_cube3d_fov").getAttribute("value"),
             textured: document.querySelector("#input_cube3d_textured").checked,
-            cube_translation: [0.0, 0.0, -6.0],
-            cube_rotationSpeed: [0.3, 0.7, 1.0],
+            cube_translation: document.querySelector("#input_cube3d_translation").getAttribute("value").split(","),
+            cube_rotationSpeed: document.querySelector("#input_cube3d_rotationSpeed").getAttribute("value").split(","),
         };
 
         let programInfo = settings.textured ? programInfo_texture : programInfo_color;
