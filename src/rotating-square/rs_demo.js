@@ -62,10 +62,6 @@ export function runRotatingSquareDemo() {
 
     const spanSquareRotation = document.querySelector("#squareRotation");
 
-    function isActive() {
-        return document.querySelector("#button_rs_demo").classList.contains("active");
-    }
-
     let then = 0;
     function render(now) {
         now *= 0.001; // conversion to seconds
@@ -84,4 +80,8 @@ export function runRotatingSquareDemo() {
 
     requestAnimationFrame(render);
 
+}
+
+function isActive() {
+    return document.querySelector("#button_rs_demo").classList.contains("active");
 }

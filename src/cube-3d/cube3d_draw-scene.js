@@ -41,9 +41,14 @@ export function drawScene(gl, programInfo, buffers, cubeRotation, settings, text
         [0, 0, 0], // rotation axis
     );
 
+    let normalMatrix = mat4.create();
+    mat4.invert(normalMatrix, modelViewMatrix);
+    mat4.transpose(normalMatrix, normalMatrix);
+
     setPositionAttribute(gl, programInfo, buffers);
     if (settings.textured) {
         setTextureAttribute(gl, programInfo, buffers);
+        setNormalAttribute(gl, programInfo, buffers);
     } else {
         setColorAttribute(gl, programInfo, buffers);
     }
@@ -61,6 +66,12 @@ export function drawScene(gl, programInfo, buffers, cubeRotation, settings, text
         programInfo.uniformLocations.modelViewMatrix,
         false,
         modelViewMatrix,
+    );
+
+    gl.uniformMatrix4fv(
+        programInfo.uniformLocations.normalMatrix,
+        false,
+        normalMatrix,
     );
 
     // WebGL provides a minimum of 8 texture units, the first is gl.TEXTURE0
@@ -132,4 +143,22 @@ function setTextureAttribute(gl, programInfo, buffers) {
     );
     gl.enableVertexAttribArray(programInfo.attribLocations.textureCoordinates);
 
+}
+
+function setNormalAttribute(gl, programInfo, buffers) {
+    const numComponents = 3;
+    const type = gl.FLOAT;
+    const normalize = false;
+    const stride = 0;
+    const offset = 0;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normals);
+    gl.vertexAttribPointer(
+        programInfo.attribLocations.vertexNormal,
+        numComponents,
+        type,
+        normalize,
+        stride,
+        offset,
+    );
+    gl.enableVertexAttribArray(programInfo.attribLocations.vertexNormal);
 }
