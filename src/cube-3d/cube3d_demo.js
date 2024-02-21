@@ -42,6 +42,7 @@ export function runCube3DDemo() {
             textured: document.querySelector("#input_cube3d_textured").checked,
             cube_translation: document.querySelector("#input_cube3d_translation").getAttribute("value").split(","),
             cube_rotationSpeed: document.querySelector("#input_cube3d_rotationSpeed").getAttribute("value").split(","),
+            ambientLight: document.querySelector("#input_cube3d_ambientLight").getAttribute("value").split(","),
         };
 
         let programInfo = settings.textured ? programInfo_texture : programInfo_color;
@@ -119,6 +120,8 @@ function initShaderProgram_texture(gl) {
     uniform mat4 uProjectionMatrix;
     uniform mat4 uNormalMatrix;
 
+    uniform highp vec3 uAmbientLight;
+
     varying highp vec2 vTextureCoord;
     varying highp vec3 vLighting;
 
@@ -126,14 +129,13 @@ function initShaderProgram_texture(gl) {
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
         vTextureCoord = aTextureCoord;
 
-        highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
         highp vec3 directionalLightColor = vec3(1, 1, 1);
         highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
 
         highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
 
         highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-        vLighting = ambientLight + (directionalLightColor * directional);
+        vLighting = uAmbientLight + (directionalLightColor * directional);
     }
     `;
 
@@ -165,6 +167,7 @@ function initShaderProgram_texture(gl) {
             modelViewMatrix: gl.getUniformLocation(shaderProgram_Texture, "uModelViewMatrix"),
             normalMatrix: gl.getUniformLocation(shaderProgram_Texture, "uNormalMatrix"),
             uSampler: gl.getUniformLocation(shaderProgram_Texture, "uSampler"),
+            ambientLight: gl.getUniformLocation(shaderProgram_Texture, "uAmbientLight"),
         },
     };
     return programInfo_Texture;

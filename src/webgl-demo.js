@@ -28,6 +28,9 @@ function main() {
     document.querySelector("#input_cube3d_rotationSpeed").addEventListener("change", function (event) {
         document.querySelector("#input_cube3d_rotationSpeed").setAttribute("value", event.target.value);
     });
+    document.querySelector("#input_cube3d_ambientLight").addEventListener("change", function (event) {
+        document.querySelector("#input_cube3d_ambientLight").setAttribute("value", event.target.value);
+    });
 
     button_cube3d_demo.click();
 }

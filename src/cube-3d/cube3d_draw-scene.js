@@ -74,6 +74,11 @@ export function drawScene(gl, programInfo, buffers, cubeRotation, settings, text
         normalMatrix,
     );
 
+    gl.uniform3fv(
+        programInfo.uniformLocations.ambientLight,
+        settings.ambientLight,
+    );
+
     // WebGL provides a minimum of 8 texture units, the first is gl.TEXTURE0
     // Tell WebGL we want to affect texture unit 0
     gl.activeTexture(gl.TEXTURE0);
