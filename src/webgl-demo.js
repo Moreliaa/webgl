@@ -19,5 +19,15 @@ function main() {
         button_cube3d_demo.classList.add("active");
     };
 
+    document.querySelector("#input_cube3d_fov").addEventListener("change", function (event) {
+        document.querySelector("#input_cube3d_fov").setAttribute("value", event.target.value);
+    });
+    document.querySelector("#input_cube3d_translation").addEventListener("change", function (event) {
+        document.querySelector("#input_cube3d_translation").setAttribute("value", event.target.value);
+    });
+    document.querySelector("#input_cube3d_rotationSpeed").addEventListener("change", function (event) {
+        document.querySelector("#input_cube3d_rotationSpeed").setAttribute("value", event.target.value);
+    });
+
     button_cube3d_demo.click();
 }

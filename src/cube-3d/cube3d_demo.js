@@ -22,24 +22,9 @@ export function runCube3DDemo() {
     }
     const buffers = initBuffers(gl);
     const texture = loadTexture(gl, "assets/mytexture.png");
-    // Flip image pixels into the bottom-to-top order that WebGL expects.
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); // Flip image pixels into the bottom-to-top order that WebGL expects.
 
     const rotation = document.querySelector("#squareRotation");
-
-    function isActive() {
-        return document.querySelector("#button_cube3d_demo").classList.contains("active");
-    }
-
-    document.querySelector("#input_cube3d_fov").addEventListener("change", function (event) {
-        document.querySelector("#input_cube3d_fov").setAttribute("value", event.target.value);
-    });
-    document.querySelector("#input_cube3d_translation").addEventListener("change", function (event) {
-        document.querySelector("#input_cube3d_translation").setAttribute("value", event.target.value);
-    });
-    document.querySelector("#input_cube3d_rotationSpeed").addEventListener("change", function (event) {
-        document.querySelector("#input_cube3d_rotationSpeed").setAttribute("value", event.target.value);
-    });
 
     let then = 0;
     function render(now) {
@@ -73,6 +58,10 @@ export function runCube3DDemo() {
 
     requestAnimationFrame(render);
 
+}
+
+function isActive() {
+    return document.querySelector("#button_cube3d_demo").classList.contains("active");
 }
 
 function initShaderProgram_color(gl) {
@@ -123,26 +112,40 @@ function initShaderProgram_color(gl) {
 function initShaderProgram_texture(gl) {
     const vsSource_Texture = `
     attribute vec4 aVertexPosition;
+    attribute vec3 aVertexNormal;
     attribute vec2 aTextureCoord;
 
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
+    uniform mat4 uNormalMatrix;
 
     varying highp vec2 vTextureCoord;
+    varying highp vec3 vLighting;
 
     void main() {
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
         vTextureCoord = aTextureCoord;
+
+        highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+        highp vec3 directionalLightColor = vec3(1, 1, 1);
+        highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
+
+        highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
+
+        highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+        vLighting = ambientLight + (directionalLightColor * directional);
     }
     `;
 
     const fsSource_Texture = `
     varying highp vec2 vTextureCoord;
+    varying highp vec3 vLighting;
 
     uniform sampler2D uSampler;
 
     void main() {
-        gl_FragColor = texture2D(uSampler, vTextureCoord);
+        highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
+        gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
     }
     `;
 
@@ -155,10 +158,12 @@ function initShaderProgram_texture(gl) {
         attribLocations: {
             vertexPosition: gl.getAttribLocation(shaderProgram_Texture, "aVertexPosition"),
             textureCoordinates: gl.getAttribLocation(shaderProgram_Texture, "aTextureCoord"),
+            vertexNormal: gl.getAttribLocation(shaderProgram_Texture, "aVertexNormal"),
         },
         uniformLocations: {
             projectionMatrix: gl.getUniformLocation(shaderProgram_Texture, "uProjectionMatrix"),
             modelViewMatrix: gl.getUniformLocation(shaderProgram_Texture, "uModelViewMatrix"),
+            normalMatrix: gl.getUniformLocation(shaderProgram_Texture, "uNormalMatrix"),
             uSampler: gl.getUniformLocation(shaderProgram_Texture, "uSampler"),
         },
     };
