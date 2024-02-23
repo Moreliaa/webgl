@@ -1,7 +1,9 @@
 import { initBuffers } from "./cube3d_init-buffers.js";
 import { drawScene } from "./cube3d_draw-scene.js";
 import { initShaderProgram } from "../init-shader-program.js";
-import { loadTexture } from "../load-texture.js";
+import { loadTexture, initVideoTexture } from "../load-texture.js";
+
+let copyVideo = false; // will be set to true when video can be used in a texture
 
 export function runCube3DDemo() {
     let cubeRotation = 0.0; // rotation in rad
@@ -21,7 +23,11 @@ export function runCube3DDemo() {
         return;
     }
     const buffers = initBuffers(gl);
-    const texture = loadTexture(gl, "assets/mytexture.png");
+    // TODO restore and use both texture and video
+    //const texture = loadTexture(gl, "assets/mytexture.png");
+    const texture = initVideoTexture(gl, "assets/mytexture.png");
+    const video = setupVideo("assets/myvideo.mp4");
+    
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); // Flip image pixels into the bottom-to-top order that WebGL expects.
 
     const rotation = document.querySelector("#squareRotation");
@@ -44,6 +50,10 @@ export function runCube3DDemo() {
             cube_rotationSpeed: document.querySelector("#input_cube3d_rotationSpeed").getAttribute("value").split(","),
             ambientLight: document.querySelector("#input_cube3d_ambientLight").getAttribute("value").split(","),
         };
+
+        if (copyVideo) {
+            updateTexture(gl, texture, video);
+        }
 
         let programInfo = settings.textured ? programInfo_texture : programInfo_color;
         drawScene(gl, programInfo, buffers, cubeRotation, settings, texture);
@@ -171,4 +181,55 @@ function initShaderProgram_texture(gl) {
         },
     };
     return programInfo_Texture;
+}
+
+function setupVideo(url) {
+    const video = document.querySelector("#video");
+    let playing = false;
+    let timeupdate = false;
+
+    // need to check these events because uploading video to webgl will produce an error if no data is available yet
+    video.addEventListener(
+        "timeupdate", // this event fires when the currentTime attribute for the element is updated. This indicates the video is running.
+        () => {
+            timeupdate = true;
+            checkReady();
+        },
+        true,
+    );
+
+    video.addEventListener(
+        "playing", // this event is fired when playback is first started or restarted
+        () => {
+          playing = true;
+          checkReady();
+        },
+        true,
+      );
+
+      video.src = url;
+    video.play();
+
+    function checkReady() {
+        if (playing && timeupdate) {
+        copyVideo = true;
+        }
+    }
+    return video;
+}
+
+function updateTexture(gl, texture, video) {
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      level,
+      internalFormat,
+      srcFormat,
+      srcType,
+      video,
+    );
 }
