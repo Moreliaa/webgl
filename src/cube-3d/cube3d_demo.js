@@ -24,8 +24,8 @@ export function runCube3DDemo() {
     }
     const buffers = initBuffers(gl);
     // TODO restore and use both texture and video
-    //const texture = loadTexture(gl, "assets/mytexture.png");
-    const texture = initVideoTexture(gl, "assets/mytexture.png");
+    const texture = loadTexture(gl, "assets/mytexture.png");
+    const textureVideo = initVideoTexture(gl);
     const video = setupVideo("assets/myvideo.mp4");
     
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); // Flip image pixels into the bottom-to-top order that WebGL expects.
@@ -46,17 +46,18 @@ export function runCube3DDemo() {
         let settings = {
             fov: document.querySelector("#input_cube3d_fov").getAttribute("value"),
             textured: document.querySelector("#input_cube3d_textured").checked,
+            video: document.querySelector("#input_cube3d_video").checked,
             cube_translation: document.querySelector("#input_cube3d_translation").getAttribute("value").split(","),
             cube_rotationSpeed: document.querySelector("#input_cube3d_rotationSpeed").getAttribute("value").split(","),
             ambientLight: document.querySelector("#input_cube3d_ambientLight").getAttribute("value").split(","),
         };
 
         if (copyVideo) {
-            updateTexture(gl, texture, video);
+            updateTexture(gl, textureVideo, video);
         }
 
-        let programInfo = settings.textured ? programInfo_texture : programInfo_color;
-        drawScene(gl, programInfo, buffers, cubeRotation, settings, texture);
+        let programInfo = settings.textured || settings.video ? programInfo_texture : programInfo_color;
+        drawScene(gl, programInfo, buffers, cubeRotation, settings, texture, textureVideo);
         cubeRotation = (cubeRotation + deltaTime); // animation loops every 3600° deg
 
         rotation.textContent = (cubeRotation * (180 / Math.PI)).toFixed(1);
