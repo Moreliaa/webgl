@@ -31,6 +31,9 @@ function main() {
     document.querySelector("#input_cube3d_ambientLight").addEventListener("change", function (event) {
         document.querySelector("#input_cube3d_ambientLight").setAttribute("value", event.target.value);
     });
+    document.querySelector("#input_cube3d_video").addEventListener("change", function (event) {
+        document.querySelector("#input_cube3d_video").setAttribute("value", event.target.value);
+    });
 
     button_cube3d_demo.click();
 }

@@ -1,4 +1,4 @@
-export function drawScene(gl, programInfo, buffers, cubeRotation, settings, texture) {
+export function drawScene(gl, programInfo, buffers, cubeRotation, settings, texture, textureVideo) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
@@ -46,7 +46,7 @@ export function drawScene(gl, programInfo, buffers, cubeRotation, settings, text
     mat4.transpose(normalMatrix, normalMatrix);
 
     setPositionAttribute(gl, programInfo, buffers);
-    if (settings.textured) {
+    if (settings.textured || settings.video) {
         setTextureAttribute(gl, programInfo, buffers);
         setNormalAttribute(gl, programInfo, buffers);
     } else {
@@ -84,15 +84,30 @@ export function drawScene(gl, programInfo, buffers, cubeRotation, settings, text
     gl.activeTexture(gl.TEXTURE0);
 
     // Bind the texture to texture unit 0
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
+    
+    
     // Tell the shader we bound the texture to texture unit 0
     gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
-
-
+    
+    
     const offset = 0; // starting index in the array of vector points
-    const vertexCount = 36; // number of vertices to be drawn, 36 from 6 vertices per face
-    gl.drawElements(gl.TRIANGLES, vertexCount, gl.UNSIGNED_SHORT, offset);
+    if (settings.textured && !settings.video) {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, offset);
+    } else if (!settings.textured && settings.video) {
+        gl.bindTexture(gl.TEXTURE_2D, textureVideo);
+        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, offset);
+    } else { // both active
+        
+    const vertexCount = 18; // number of vertices to be drawn, 36 from 6 vertices per face
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.drawElements(gl.TRIANGLES, vertexCount, gl.UNSIGNED_SHORT, offset);
+        gl.bindTexture(gl.TEXTURE_2D, textureVideo);
+    gl.drawElements(gl.TRIANGLES, vertexCount, gl.UNSIGNED_SHORT, 2 * 18);
+    }
+    
+    
+    
 }
 
 function setPositionAttribute(gl, programInfo, buffers) {
