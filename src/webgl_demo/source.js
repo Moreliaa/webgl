@@ -282,6 +282,23 @@ function initShaderProgram(gl) {
     }
     `;*/
 
+    let file = fetch("src/webgl_demo/shaders/vertex.vs").then((response) => {
+        return new Promise((res) => {
+            let reader = response.body.getReader();
+            let chars = "a"
+            reader.read().then(function processText({done, value}) {
+                if (done) {
+                    console.log("done")
+                    console.log(value)
+                    return;
+                }
+                console.log(value)
+                return reader.read().then(processText);
+            })
+        
+        });
+        
+    });
     let vSource = `
     attribute vec4 aPosition;
     attribute vec4 aColor;
