@@ -135,7 +135,7 @@ function main() {
         cameraFront[2] = Math.sin(yaw_rad) * Math.cos(pitch_rad);
         vec3.normalize(cameraFront, cameraFront);
 
-
+// Controls
         if (keyboard.keys.back && !keyboard.keys.forward) {
             let offset = vec3.create();
             vec3.scale(offset, cameraFront, delta * PAN_SPEED);
@@ -168,7 +168,7 @@ function main() {
             vec3.sub(cameraPos, cameraPos, offset);
         }
 
-
+// Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         let cameraTarget = vec3.create();
@@ -219,7 +219,7 @@ function initBuffers(gl) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     let vertices = [ // x y z
         -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, // front
-        -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5,              // back        
+         0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5,-0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5,              // back        
         -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5,// top
         -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5,// bottom
         -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5,// left
@@ -314,7 +314,7 @@ function initShaderProgram(gl) {
     uniform sampler2D uSampler;
 
     void main() {
-        gl_FragColor = texture2D(uSampler, vTextureCoord);
+        gl_FragColor = texture2D(uSampler, vTextureCoord) * vec4(0.7, 1.0, 0.5, 1.0);
     }
     `;
 
