@@ -1,7 +1,7 @@
-import { initBuffers } from "./cube3d_init-buffers.js";
-import { drawScene } from "./cube3d_draw-scene.js";
-import { initShaderProgram } from "../init-shader-program.js";
-import { loadTexture, initVideoTexture } from "../load-texture.js";
+import { initBuffers } from "./cube_old_init-buffers.js";
+import { drawScene } from "./cube_old_draw-scene.js";
+import { initShaderProgram } from "./init-shader-program.js";
+import { loadTexture, initVideoTexture } from "./load-texture.js";
 
 let copyVideo = false; // will be set to true when video can be used in a texture
 
@@ -73,7 +73,7 @@ export function runCube3DDemo() {
 }
 
 function isActive() {
-    return document.querySelector("#button_cube3d_demo").classList.contains("active");
+    return true;
 }
 
 function initShaderProgram_color(gl) {

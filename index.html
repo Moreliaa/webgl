@@ -1,40 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="utf-8"><meta>
-        <title>WebGL Demo</title>
-        <link rel="stylesheet" href="./style.css" type="text/css" />
-        <!--Cannot use gl-matrix 3.4.x due to breaking changes, missing exports. -->
         <script 
             src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
             integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
             crossorigin="anonymous"
             defer
         ></script>
-        <script src="src/webgl-demo.js" type="module"></script>
+        <script src="src/webgl_demo/source.js" type="module"></script>
     </head>
-
     <body>
-        <div id="topRow">
-            <div id="container">
-                <div id="overlay">
-                    <div>Rotation (Deg): <span id="squareRotation"></span></div>
-                </div>
-                <canvas id="glcanvas" width="640" height="480"></canvas>
-            </div>
-            <div id="controls_webgl">
-                <input class="input" value="45" type="number" id="input_cube3d_fov">FOV</input>
-                <input class="input" type="checkbox" checked id="input_cube3d_textured">Textured</input>
-                <input class="input" type="checkbox" checked id="input_cube3d_video">Video</input>
-                <input class="input" value="0.0,0.0,-6.0" type="text" id="input_cube3d_translation">Translation</input>
-                <input class="input" value="0.3,0.7,1.0" type="text" id="input_cube3d_rotationSpeed">Rotation Speed</input>
-                <input class="input" value="0.3,0.3,0.3" type="text" id="input_cube3d_ambientLight">Ambient Light (RGB)</input>
-            </div>
-        </div>
+        <canvas id="glcanvas" style="width: 90vw; height: 90vh;"></canvas>
         <div id="controls">
-            <button id="button_rs_demo">Square</button>
-            <button id="button_cube3d_demo">Cube</button>
+            <button id="button_cube3d_demo" onclick="location.href='cube_old.html'">Cube (Old)</button>
         </div>
-        <video id="video" playsInline="true" muted="true" loop="true" style="display:none;"></video>
     </body>
 </html>
