@@ -29,7 +29,7 @@ export async function initShaderProgram(gl, vertexShaderFile, fragmentShaderFile
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         const info = gl.getProgramInfoLog(program);
-        console.error(`Could not compile WebGL program. \n\n${info}`);
+        console.error(`Could not link WebGL program. \n\n${info}`);
     }
 
     return program;
