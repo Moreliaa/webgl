@@ -1,8 +1,9 @@
 import Keyboard from "./keyboard.js";
+import { initShaderProgram } from "./program.js";
 
 main();
 
-function main() {
+async function main() {
     let canvas = document.querySelector("#glcanvas");
 
     // needed to fix blurriness of the image
@@ -18,7 +19,7 @@ function main() {
     gl.depthFunc(gl.LESS);
     gl.enable(gl.DEPTH_TEST);
 
-    let program = initShaderProgram(gl);
+    let program = await initShaderProgram(gl, "vertex.vs", "fragment.fs");
     let buffers = initBuffers(gl);
     let programInfo = {
         attributes: {
@@ -258,107 +259,4 @@ function initBuffers(gl) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
 
     return { vertexBuffer, colorBuffer, textureBuffer };
-}
-
-function initShaderProgram(gl) {
-    let program = gl.createProgram();
-
-    let vShader = gl.createShader(gl.VERTEX_SHADER);
-    let fShader = gl.createShader(gl.FRAGMENT_SHADER);
-
-    /*let vSource = `
-    attribute vec4 aPosition;
-    attribute vec4 aColor;
-
-    uniform mat4 uModelMatrix;
-    uniform mat4 uViewMatrix;
-    uniform mat4 uPerspectiveMatrix;
-
-    varying highp vec4 vColor;
-
-    void main() {
-        gl_Position = uPerspectiveMatrix * uViewMatrix * uModelMatrix * aPosition;
-        vColor = aColor;
-    }
-    `;*/
-
-    let file = fetch("src/webgl_demo/shaders/vertex.vs").then((response) => {
-        return new Promise((res) => {
-            let reader = response.body.getReader();
-            let chars = "a"
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    console.log("done")
-                    console.log(value)
-                    return;
-                }
-                console.log(value)
-                return reader.read().then(processText);
-            })
-        
-        });
-        
-    });
-    let vSource = `
-    attribute vec4 aPosition;
-    attribute vec4 aColor;
-    attribute vec2 aTextureCoord;
-
-    uniform mat4 uModelMatrix;
-    uniform mat4 uViewMatrix;
-    uniform mat4 uPerspectiveMatrix;
-
-    varying highp vec4 vColor;
-    varying highp vec2 vTextureCoord;
-
-    void main() {
-        gl_Position = uPerspectiveMatrix * uViewMatrix * uModelMatrix * aPosition;
-        vTextureCoord = aTextureCoord;
-    }
-    `;
-
-    /*let fSource = `
-    varying lowp vec4 vColor;
-
-    void main() {
-        gl_FragColor = vColor;
-    }
-    `;*/
-
-    let fSource = `
-    varying highp vec2 vTextureCoord;
-
-    uniform sampler2D uSampler;
-
-    void main() {
-        gl_FragColor = texture2D(uSampler, vTextureCoord) * vec4(0.7, 1.0, 0.5, 1.0);
-    }
-    `;
-
-    gl.shaderSource(vShader, vSource);
-    gl.shaderSource(fShader, fSource);
-
-    gl.compileShader(vShader);
-    gl.compileShader(fShader);
-
-    if (!gl.getShaderParameter(vShader, gl.COMPILE_STATUS)) {
-        const info = gl.getShaderInfoLog(vShader);
-        console.error(`Could not compile WebGL shader. \n\n${info}`);
-    }
-
-    if (!gl.getShaderParameter(fShader, gl.COMPILE_STATUS)) {
-        const info = gl.getShaderInfoLog(fShader);
-        console.error(`Could not compile WebGL shader. \n\n${info}`);
-    }
-
-    gl.attachShader(program, vShader);
-    gl.attachShader(program, fShader);
-    gl.linkProgram(program);
-
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        const info = gl.getProgramInfoLog(program);
-        console.error(`Could not compile WebGL program. \n\n${info}`);
-    }
-
-    return program;
 }
