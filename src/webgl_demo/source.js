@@ -20,6 +20,7 @@ async function main() {
         program: program,
         attributes: {
             position: gl.getAttribLocation(program, "aPosition"),
+            normal: gl.getAttribLocation(program, "aNormal"),
             color: gl.getAttribLocation(program, "aColor"),
             texture: gl.getAttribLocation(program, "aTextureCoord"),
         },
@@ -30,6 +31,8 @@ async function main() {
             perspective: gl.getUniformLocation(program, "uPerspectiveMatrix"),
             sampler: gl.getUniformLocation(program, "uSampler"),
             ambientColor: gl.getUniformLocation(program, "uAmbientColor"),
+            diffuseColor: gl.getUniformLocation(program, "uDiffuseColor"),
+            lightPosition: gl.getUniformLocation(program, "uLightPosition"),
         }
     };
 
@@ -127,6 +130,13 @@ async function main() {
         let delta = now - then;
         then = now;
         rotation = rotation + delta;
+
+        // lightpos
+        let z = pointLights[0].translation[2] * Math.cos(degToRad(rotation * 100));
+        let y = pointLights[0].translation[1] * Math.sin(degToRad(rotation * 100));
+          
+        let lightPosCurrent = [pointLights[0].translation[0], y, z];
+
         let cameraFront = vec3.create();
         let yaw_rad = degToRad(yaw);
         let pitch_rad = degToRad(pitch);
@@ -168,7 +178,7 @@ async function main() {
             vec3.sub(cameraPos, cameraPos, offset);
         }
 
-// Render
+        // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         let cameraTarget = vec3.create();
@@ -180,6 +190,34 @@ async function main() {
         let perspectiveMatrix = mat4.create();
         mat4.perspective(perspectiveMatrix, 90, canvas.clientWidth / canvas.clientHeight, 1, 10);
 
+        // Lights
+        gl.useProgram(programInfo_pointLight.program);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertexBuffer);
+        gl.vertexAttribPointer(programInfo_pointLight.attributes.position, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(programInfo_pointLight.attributes.position);
+
+        gl.uniformMatrix4fv(programInfo_pointLight.uniforms.perspective, false, perspectiveMatrix);
+        gl.uniformMatrix4fv(programInfo_pointLight.uniforms.view, false, viewMatrix);
+
+        let lightColor = vec4.fromValues(0.3, 0.8, 0.8, 1.0);
+        let ambientStrength = 0.2;
+        let ambientColor = vec4.clone(lightColor);
+        ambientColor[0] = ambientColor[0] * ambientStrength;
+        ambientColor[1] = ambientColor[1] * ambientStrength;
+        ambientColor[2] = ambientColor[2] * ambientStrength;
+        let diffuseColor = vec4.clone(lightColor);
+        gl.uniform4fv(programInfo_pointLight.uniforms.lightColor, diffuseColor);
+
+        for (let pointLight of pointLights) {
+            let modelMatrix = mat4.create();
+            mat4.translate(modelMatrix, modelMatrix, lightPosCurrent);
+            mat4.scale(modelMatrix,modelMatrix, [0.5, 0.5, 0.5]);
+            gl.uniformMatrix4fv(programInfo_pointLight.uniforms.model, false, modelMatrix);
+            gl.drawArrays(gl.TRIANGLES, 0, 36);
+        }
+
+// Cubes 
         gl.useProgram(programInfo.program);
         gl.activeTexture(gl.TEXTURE0);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -194,38 +232,24 @@ async function main() {
         gl.vertexAttribPointer(programInfo.attributes.position, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(programInfo.attributes.position);
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normalsBuffer);
+        gl.vertexAttribPointer(programInfo.attributes.normal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(programInfo.attributes.normal);
+
         gl.uniformMatrix4fv(programInfo.uniforms.perspective, false, perspectiveMatrix);
         gl.uniformMatrix4fv(programInfo.uniforms.view, false, viewMatrix);
-
-        let ambientColor = vec4.fromValues(0.7, 0.5, 0.3, 1.0);
+        
         gl.uniform4fv(programInfo.uniforms.ambientColor, ambientColor);
+        gl.uniform4fv(programInfo.uniforms.diffuseColor, diffuseColor);
+        let lightPosition = lightPosCurrent;
+        let lightPositionAsVec = vec4.fromValues(...lightPosition, 1.0);
+        gl.uniform4fv(programInfo.uniforms.lightPosition, lightPositionAsVec);
 
         for (let cube of cubes) {
             let modelMatrix = mat4.create();
             mat4.translate(modelMatrix, modelMatrix, cube.translation);
             mat4.rotate(modelMatrix, modelMatrix, cube.rotation, [0, 0, 1]);
             gl.uniformMatrix4fv(programInfo.uniforms.model, false, modelMatrix);
-            gl.drawArrays(gl.TRIANGLES, 0, 36);
-        }
-
-        // Lights
-        gl.useProgram(programInfo_pointLight.program);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertexBuffer);
-        gl.vertexAttribPointer(programInfo_pointLight.attributes.position, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(programInfo_pointLight.attributes.position);
-
-        gl.uniformMatrix4fv(programInfo_pointLight.uniforms.perspective, false, perspectiveMatrix);
-        gl.uniformMatrix4fv(programInfo_pointLight.uniforms.view, false, viewMatrix);
-
-        let lightColor = vec4.fromValues(1.0, 1.0, 0.5, 1.0);
-        gl.uniform4fv(programInfo_pointLight.uniforms.lightColor, lightColor);
-
-        for (let pointLight of pointLights) {
-            let modelMatrix = mat4.create();
-            mat4.translate(modelMatrix, modelMatrix, pointLight.translation);
-            mat4.scale(modelMatrix,modelMatrix, [0.5, 0.5, 0.5]);
-            gl.uniformMatrix4fv(programInfo_pointLight.uniforms.model, false, modelMatrix);
             gl.drawArrays(gl.TRIANGLES, 0, 36);
         }
 
@@ -269,6 +293,27 @@ function initBuffers(gl) {
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
+    let normalsBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalsBuffer);
+    let normals = [
+        [0.0, 0.0, -1.0], // front
+        [0.0, 0.0, 1.0], // back
+        [0.0, 1.0, 0.0], // top
+        [0.0, -1.0, 0.0], // bottom
+        [-1.0, 0.0, 0.0], // left
+        [1.0, 0.0, 0.0], // right
+    ];
+    let normalsExpanded = [];
+    for (let n of normals) {
+        let numVertices = 6;
+        for (let i = 0; i < numVertices; i++) {
+            normalsExpanded.push(n[0]);
+            normalsExpanded.push(n[1]);
+            normalsExpanded.push(n[2]);
+        }
+    }
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalsExpanded), gl.STATIC_DRAW);
+
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     let colors = [
@@ -299,5 +344,5 @@ function initBuffers(gl) {
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
 
-    return { vertexBuffer, colorBuffer, textureBuffer };
+    return { vertexBuffer, normalsBuffer, colorBuffer, textureBuffer };
 }
