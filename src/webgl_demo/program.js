@@ -36,7 +36,7 @@ export async function initShaderProgram(gl, vertexShaderFile, fragmentShaderFile
 }
 
 function loadShaderSource(path) {
-    return fetch(path).then((res) => {
+    return fetch(path, {cache: "no-store"}).then((res) => {
         let reader = res.body.getReader();
         let decoder = new TextDecoder();
         let shaderSource = "";

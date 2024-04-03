@@ -6,10 +6,6 @@ main();
 async function main() {
     let canvas = document.querySelector("#glcanvas");
 
-    // needed to fix blurriness of the image
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-
     /** @type {WebGLRenderingContext} */
     let gl = canvas.getContext("webgl");
 
@@ -20,7 +16,6 @@ async function main() {
     gl.enable(gl.DEPTH_TEST);
 
     let program = await initShaderProgram(gl, "vertex.vs", "fragment.fs");
-    let buffers = initBuffers(gl);
     let programInfo = {
         program: program,
         attributes: {
@@ -34,6 +29,7 @@ async function main() {
             view: gl.getUniformLocation(program, "uViewMatrix"),
             perspective: gl.getUniformLocation(program, "uPerspectiveMatrix"),
             sampler: gl.getUniformLocation(program, "uSampler"),
+            ambientColor: gl.getUniformLocation(program, "uAmbientColor"),
         }
     };
 
@@ -52,6 +48,7 @@ async function main() {
         }
     };
 
+    let buffers = initBuffers(gl);
     let texture = loadTexture(gl, "assets/mytexture.png");
     
 
@@ -74,7 +71,7 @@ async function main() {
     ];
 
     let pointLights = [
-        {translation: [0,3,3], rotation: 0}
+        {translation: [0,3,3]}
     ]
 
     let then = 0;
@@ -110,14 +107,22 @@ async function main() {
 
 
     let cameraPos = vec3.create();
-    cameraPos[2] = 3.0;
+    cameraPos[2] = 5.0;
     let cameraUp = vec3.create();
-    cameraUp[1] = 1.0;
+    cameraUp[1] = 2.0;
 
     const PAN_SPEED = 10;
     const keyboard = new Keyboard();
 
     function render(now) {
+        // check resize
+        if (canvas.width !== canvas.clientWidth || canvas.height != canvas.clientHeight) {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        }
+
+
         now = now * 0.001;
         let delta = now - then;
         then = now;
@@ -189,13 +194,13 @@ async function main() {
         gl.vertexAttribPointer(programInfo.attributes.position, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(programInfo.attributes.position);
 
-        
         gl.uniformMatrix4fv(programInfo.uniforms.perspective, false, perspectiveMatrix);
-
         gl.uniformMatrix4fv(programInfo.uniforms.view, false, viewMatrix);
 
-        for (let cube of cubes) {
+        let ambientColor = vec4.fromValues(0.7, 0.5, 0.3, 1.0);
+        gl.uniform4fv(programInfo.uniforms.ambientColor, ambientColor);
 
+        for (let cube of cubes) {
             let modelMatrix = mat4.create();
             mat4.translate(modelMatrix, modelMatrix, cube.translation);
             mat4.rotate(modelMatrix, modelMatrix, cube.rotation, [0, 0, 1]);
@@ -210,14 +215,15 @@ async function main() {
         gl.vertexAttribPointer(programInfo_pointLight.attributes.position, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(programInfo_pointLight.attributes.position);
 
-        
         gl.uniformMatrix4fv(programInfo_pointLight.uniforms.perspective, false, perspectiveMatrix);
-
         gl.uniformMatrix4fv(programInfo_pointLight.uniforms.view, false, viewMatrix);
+
+        let lightColor = vec4.fromValues(1.0, 1.0, 0.5, 1.0);
+        gl.uniform4fv(programInfo_pointLight.uniforms.lightColor, lightColor);
+
         for (let pointLight of pointLights) {
             let modelMatrix = mat4.create();
             mat4.translate(modelMatrix, modelMatrix, pointLight.translation);
-            mat4.rotate(modelMatrix, modelMatrix, pointLight.rotation, [0, 0, 1]);
             mat4.scale(modelMatrix,modelMatrix, [0.5, 0.5, 0.5]);
             gl.uniformMatrix4fv(programInfo_pointLight.uniforms.model, false, modelMatrix);
             gl.drawArrays(gl.TRIANGLES, 0, 36);
