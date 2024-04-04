@@ -67,8 +67,8 @@ async function main() {
 
     let cubes = [
         { translation: [0, 0, 0], rotation: degToRad(0) },
-        { translation: [-2, -1, 0], rotation: degToRad(40) },
-        { translation: [2, 1, 0], rotation: degToRad(70) },
+        { translation: [-10, -5, 0], rotation: degToRad(40) },
+        { translation: [10, 5, 0], rotation: degToRad(70) },
         //{translation: [0,0,-2], rotation: degToRad(30)},
         //{translation: [0,0,2], rotation: degToRad(120)},
     ];
@@ -188,7 +188,7 @@ async function main() {
         mat4.lookAt(viewMatrix, cameraPos, cameraTarget, cameraUp);
 
         let perspectiveMatrix = mat4.create();
-        mat4.perspective(perspectiveMatrix, 90, canvas.clientWidth / canvas.clientHeight, 1, 10);
+        mat4.perspective(perspectiveMatrix, 90, canvas.clientWidth / canvas.clientHeight, 1, 100);
 
         // Lights
         gl.useProgram(programInfo_pointLight.program);
@@ -246,9 +246,9 @@ async function main() {
 
         for (let cube of cubes) {
             let modelMatrix = mat4.create();
-            mat4.scale(modelMatrix, modelMatrix, [5,5,5]);
             mat4.translate(modelMatrix, modelMatrix, cube.translation);
             mat4.rotate(modelMatrix, modelMatrix, cube.rotation, [0, 0, 1]);
+            mat4.scale(modelMatrix, modelMatrix, [5,5,5]);
             gl.uniformMatrix4fv(programInfo.uniforms.model, false, modelMatrix);
             gl.drawArrays(gl.TRIANGLES, 0, 36);
         }
