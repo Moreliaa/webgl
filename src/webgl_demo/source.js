@@ -132,8 +132,8 @@ async function main() {
         rotation = rotation + delta;
 
         // lightpos
-        let z = pointLights[0].translation[2] * Math.cos(degToRad(rotation * 100));
-        let y = pointLights[0].translation[1] * Math.sin(degToRad(rotation * 100));
+        let z = pointLights[0].translation[2] * Math.cos(degToRad(rotation * 5));
+        let y = pointLights[0].translation[1] * Math.sin(degToRad(rotation * 5));
           
         let lightPosCurrent = [pointLights[0].translation[0], y, z];
 
@@ -200,14 +200,15 @@ async function main() {
         gl.uniformMatrix4fv(programInfo_pointLight.uniforms.perspective, false, perspectiveMatrix);
         gl.uniformMatrix4fv(programInfo_pointLight.uniforms.view, false, viewMatrix);
 
-        let lightColor = vec4.fromValues(0.3, 0.8, 0.8, 1.0);
+        let lightColor = vec3.fromValues(0.3, 0.8, 0.8);
         let ambientStrength = 0.2;
-        let ambientColor = vec4.clone(lightColor);
+        let ambientColor = vec3.clone(lightColor);
+        //vec3.scale(ambientColor, ambientColor, ambientStrength);
         ambientColor[0] = ambientColor[0] * ambientStrength;
         ambientColor[1] = ambientColor[1] * ambientStrength;
         ambientColor[2] = ambientColor[2] * ambientStrength;
-        let diffuseColor = vec4.clone(lightColor);
-        gl.uniform4fv(programInfo_pointLight.uniforms.lightColor, diffuseColor);
+        let diffuseColor = vec3.clone(lightColor);
+        gl.uniform3fv(programInfo_pointLight.uniforms.lightColor, diffuseColor);
 
         for (let pointLight of pointLights) {
             let modelMatrix = mat4.create();
@@ -239,8 +240,8 @@ async function main() {
         gl.uniformMatrix4fv(programInfo.uniforms.perspective, false, perspectiveMatrix);
         gl.uniformMatrix4fv(programInfo.uniforms.view, false, viewMatrix);
         
-        gl.uniform4fv(programInfo.uniforms.ambientColor, ambientColor);
-        gl.uniform4fv(programInfo.uniforms.diffuseColor, diffuseColor);
+        gl.uniform3fv(programInfo.uniforms.ambientColor, ambientColor);
+        gl.uniform3fv(programInfo.uniforms.diffuseColor, diffuseColor);
         let lightPosition = lightPosCurrent;
         let lightPositionAsVec = vec4.fromValues(...lightPosition, 1.0);
         gl.uniform4fv(programInfo.uniforms.lightPosition, lightPositionAsVec);
