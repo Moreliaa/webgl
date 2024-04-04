@@ -74,7 +74,7 @@ async function main() {
     ];
 
     let pointLights = [
-        {translation: [0,3,3]}
+        {translation: [0,4,4]}
     ]
 
     let then = 0;
@@ -132,8 +132,8 @@ async function main() {
         rotation = rotation + delta;
 
         // lightpos
-        let z = pointLights[0].translation[2] * Math.cos(degToRad(rotation * 5));
-        let y = pointLights[0].translation[1] * Math.sin(degToRad(rotation * 5));
+        let z = pointLights[0].translation[2] * Math.cos(degToRad(rotation * 20));
+        let y = pointLights[0].translation[1] * Math.sin(degToRad(rotation * 20));
           
         let lightPosCurrent = [pointLights[0].translation[0], y, z];
 
@@ -203,11 +203,9 @@ async function main() {
         let lightColor = vec3.fromValues(0.3, 0.8, 0.8);
         let ambientStrength = 0.2;
         let ambientColor = vec3.clone(lightColor);
-        //vec3.scale(ambientColor, ambientColor, ambientStrength);
-        ambientColor[0] = ambientColor[0] * ambientStrength;
-        ambientColor[1] = ambientColor[1] * ambientStrength;
-        ambientColor[2] = ambientColor[2] * ambientStrength;
-        let diffuseColor = vec3.clone(lightColor);
+        vec3.scale(ambientColor, ambientColor, ambientStrength);
+        //let diffuseColor = vec3.clone(lightColor);
+        let diffuseColor = vec3.fromValues(0.8,0.3,0.3);
         gl.uniform3fv(programInfo_pointLight.uniforms.lightColor, diffuseColor);
 
         for (let pointLight of pointLights) {
@@ -248,6 +246,7 @@ async function main() {
 
         for (let cube of cubes) {
             let modelMatrix = mat4.create();
+            mat4.scale(modelMatrix, modelMatrix, [5,5,5]);
             mat4.translate(modelMatrix, modelMatrix, cube.translation);
             mat4.rotate(modelMatrix, modelMatrix, cube.rotation, [0, 0, 1]);
             gl.uniformMatrix4fv(programInfo.uniforms.model, false, modelMatrix);
