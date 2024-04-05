@@ -4,6 +4,7 @@ attribute vec4 aColor;
 attribute vec2 aTextureCoord;
 
 uniform mat4 uModelMatrix;
+uniform mat3 uNormalMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uPerspectiveMatrix;
 
@@ -17,5 +18,5 @@ void main() {
     gl_Position = uPerspectiveMatrix * uViewMatrix * uModelMatrix * aPosition;
     vTextureCoord = aTextureCoord;
     vPosition = uModelMatrix * aPosition;
-    vNormal = mat3(uModelMatrix) * aNormal;
+    vNormal = uNormalMatrix * aNormal;
 }

@@ -27,6 +27,7 @@ async function main() {
 
         uniforms: {
             model: gl.getUniformLocation(program, "uModelMatrix"),
+            normal: gl.getUniformLocation(program, "uNormalMatrix"),
             view: gl.getUniformLocation(program, "uViewMatrix"),
             perspective: gl.getUniformLocation(program, "uPerspectiveMatrix"),
             sampler: gl.getUniformLocation(program, "uSampler"),
@@ -250,6 +251,13 @@ async function main() {
             mat4.rotate(modelMatrix, modelMatrix, cube.rotation, [0, 0, 1]);
             mat4.scale(modelMatrix, modelMatrix, [5,5,5]);
             gl.uniformMatrix4fv(programInfo.uniforms.model, false, modelMatrix);
+
+            let normalMatrix = mat3.create();
+            mat3.fromMat4(normalMatrix, modelMatrix);
+            mat3.invert(normalMatrix, normalMatrix);
+            mat3.transpose(normalMatrix, normalMatrix);
+            gl.uniformMatrix3fv(programInfo.uniforms.normal, false, normalMatrix);
+            
             gl.drawArrays(gl.TRIANGLES, 0, 36);
         }
 
