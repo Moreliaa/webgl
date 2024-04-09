@@ -34,6 +34,7 @@ async function main() {
             ambientColor: gl.getUniformLocation(program, "uAmbientColor"),
             diffuseColor: gl.getUniformLocation(program, "uDiffuseColor"),
             lightPosition: gl.getUniformLocation(program, "uLightPosition"),
+            cameraPosition: gl.getUniformLocation(program, "uCameraPosition"),
         }
     };
 
@@ -244,6 +245,7 @@ async function main() {
         let lightPosition = lightPosCurrent;
         let lightPositionAsVec = vec4.fromValues(...lightPosition, 1.0);
         gl.uniform4fv(programInfo.uniforms.lightPosition, lightPositionAsVec);
+        gl.uniform4fv(programInfo.uniforms.cameraPosition, vec4.fromValues(...cameraPos, 1.0));
 
         for (let cube of cubes) {
             let modelMatrix = mat4.create();
