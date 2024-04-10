@@ -1,23 +1,23 @@
-#container {
-    display: inline-block;
-    position: relative;
+#controls {
+    position:absolute;
+    margin: 1vh;
+    width: 200px;
+    height: 88vh;
+    background-color: rgba(1.0, 1.0, 0.0, 0.5);
+    color:white;
 }
 
-#controls_webgl {
-    display: inline-block;
+#controls_subsection {
+    padding: 5px;
+    border: 1px solid lightgray;
 }
 
-.input {
-    display: block;
+input {
+    margin-top: 5px;
 }
 
-#overlay {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    color: white;
-}
-
-button.active {
-    color: darkturquoise;
+#glcanvas {
+    position:absolute;
+    width: 90vw;
+    height: 90vh;
 }

@@ -6,6 +6,8 @@ varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;
 uniform highp vec3 uAmbientColor;
 uniform highp vec3 uDiffuseColor;
+uniform highp vec3 uSpecularColor;
+uniform highp float uShininess;
 uniform highp vec4 uLightPosition;
 uniform highp vec4 uCameraPosition;
 
@@ -17,9 +19,7 @@ void main() {
     highp vec4 reflectedLightDirection = reflect(-lightDirection, norm);
     highp vec4 viewDirection = normalize(uCameraPosition - vPosition);
 
-    highp float shininess = 32.0;
-    highp vec3 specularColor = uDiffuseColor;
-    highp float specularStrength = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), shininess);
+    highp float specularStrength = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uShininess);
 
-    gl_FragColor = texture2D(uSampler, vTextureCoord) * vec4((uAmbientColor + diffuseStrength * uDiffuseColor  + specularStrength * specularColor), 1.0);
+    gl_FragColor = texture2D(uSampler, vTextureCoord) * vec4((uAmbientColor + diffuseStrength * uDiffuseColor  + specularStrength * uSpecularColor), 1.0);
 }

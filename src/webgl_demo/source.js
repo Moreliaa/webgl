@@ -1,4 +1,5 @@
 import Keyboard from "./keyboard.js";
+import Settings from "./settings.js";
 import { initShaderProgram } from "./program.js";
 
 main();
@@ -33,6 +34,8 @@ async function main() {
             sampler: gl.getUniformLocation(program, "uSampler"),
             ambientColor: gl.getUniformLocation(program, "uAmbientColor"),
             diffuseColor: gl.getUniformLocation(program, "uDiffuseColor"),
+            specularColor: gl.getUniformLocation(program, "uSpecularColor"),
+            shininess: gl.getUniformLocation(program, "uShininess"),
             lightPosition: gl.getUniformLocation(program, "uLightPosition"),
             cameraPosition: gl.getUniformLocation(program, "uCameraPosition"),
         }
@@ -118,6 +121,7 @@ async function main() {
 
     const PAN_SPEED = 10;
     const keyboard = new Keyboard();
+    const settings = new Settings();
 
     function render(now) {
         // check resize
@@ -180,6 +184,15 @@ async function main() {
             vec3.sub(cameraPos, cameraPos, offset);
         }
 
+        // Settings
+        let ambientStrength = settings.ambientStrength;
+        let ambientColor = vec3.clone(settings.ambientColor);
+        vec3.scale(ambientColor, ambientColor, ambientStrength);
+        let diffuseColor = settings.diffuseColor;
+         // TODO diffuse strength
+        let specularColor = settings.specularColor;
+        let shininess = settings.shininess;
+
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -202,13 +215,8 @@ async function main() {
         gl.uniformMatrix4fv(programInfo_pointLight.uniforms.perspective, false, perspectiveMatrix);
         gl.uniformMatrix4fv(programInfo_pointLight.uniforms.view, false, viewMatrix);
 
-        let lightColor = vec3.fromValues(0.3, 0.8, 0.8);
-        let ambientStrength = 0.2;
-        let ambientColor = vec3.clone(lightColor);
-        vec3.scale(ambientColor, ambientColor, ambientStrength);
-        //let diffuseColor = vec3.clone(lightColor);
-        let diffuseColor = vec3.fromValues(0.8,0.3,0.3);
         gl.uniform3fv(programInfo_pointLight.uniforms.lightColor, diffuseColor);
+       
 
         for (let pointLight of pointLights) {
             let modelMatrix = mat4.create();
@@ -242,6 +250,8 @@ async function main() {
         
         gl.uniform3fv(programInfo.uniforms.ambientColor, ambientColor);
         gl.uniform3fv(programInfo.uniforms.diffuseColor, diffuseColor);
+        gl.uniform3fv(programInfo.uniforms.specularColor, specularColor);
+        gl.uniform1f(programInfo.uniforms.shininess, shininess);
         let lightPosition = lightPosCurrent;
         let lightPositionAsVec = vec4.fromValues(...lightPosition, 1.0);
         gl.uniform4fv(programInfo.uniforms.lightPosition, lightPositionAsVec);

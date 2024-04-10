@@ -1,0 +1,23 @@
+#container {
+    display: inline-block;
+    position: relative;
+}
+
+#controls_webgl {
+    display: inline-block;
+}
+
+.input {
+    display: block;
+}
+
+#overlay {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    color: white;
+}
+
+button.active {
+    color: darkturquoise;
+}
