@@ -34,6 +34,7 @@ async function main() {
             sampler: gl.getUniformLocation(program, "uSampler"),
             ambientColor: gl.getUniformLocation(program, "uAmbientColor"),
             diffuseColor: gl.getUniformLocation(program, "uDiffuseColor"),
+            diffuseStrength: gl.getUniformLocation(program, "uDiffuseStrength"),
             specularColor: gl.getUniformLocation(program, "uSpecularColor"),
             shininess: gl.getUniformLocation(program, "uShininess"),
             lightPosition: gl.getUniformLocation(program, "uLightPosition"),
@@ -77,10 +78,6 @@ async function main() {
         //{translation: [0,0,-2], rotation: degToRad(30)},
         //{translation: [0,0,2], rotation: degToRad(120)},
     ];
-
-    let pointLights = [
-        {translation: [0,4,4]}
-    ]
 
     let then = 0;
     let rotation = 0;
@@ -137,11 +134,10 @@ async function main() {
         then = now;
         rotation = rotation + delta;
 
-        // lightpos
-        let z = pointLights[0].translation[2] * Math.cos(degToRad(rotation * 20));
-        let y = pointLights[0].translation[1] * Math.sin(degToRad(rotation * 20));
-          
-        let lightPosCurrent = [pointLights[0].translation[0], y, z];
+        // light position
+        let z = settings.lightPosition[2] * Math.cos(degToRad(rotation * 20));
+        let y = settings.lightPosition[1] * Math.sin(degToRad(rotation * 20));
+        let lightPosCurrent = settings.lightMovement ? vec3.fromValues(settings.lightPosition[0], y, z) : settings.lightPosition;
 
         let cameraFront = vec3.create();
         let yaw_rad = degToRad(yaw);
@@ -189,7 +185,7 @@ async function main() {
         let ambientColor = vec3.clone(settings.ambientColor);
         vec3.scale(ambientColor, ambientColor, ambientStrength);
         let diffuseColor = settings.diffuseColor;
-         // TODO diffuse strength
+        let diffuseStrength = settings.diffuseStrength;
         let specularColor = settings.specularColor;
         let shininess = settings.shininess;
 
@@ -218,13 +214,11 @@ async function main() {
         gl.uniform3fv(programInfo_pointLight.uniforms.lightColor, diffuseColor);
        
 
-        for (let pointLight of pointLights) {
-            let modelMatrix = mat4.create();
-            mat4.translate(modelMatrix, modelMatrix, lightPosCurrent);
-            mat4.scale(modelMatrix,modelMatrix, [0.5, 0.5, 0.5]);
-            gl.uniformMatrix4fv(programInfo_pointLight.uniforms.model, false, modelMatrix);
-            gl.drawArrays(gl.TRIANGLES, 0, 36);
-        }
+        let modelMatrix = mat4.create();
+        mat4.translate(modelMatrix, modelMatrix, lightPosCurrent);
+        mat4.scale(modelMatrix,modelMatrix, [0.5, 0.5, 0.5]);
+        gl.uniformMatrix4fv(programInfo_pointLight.uniforms.model, false, modelMatrix);
+        gl.drawArrays(gl.TRIANGLES, 0, 36);
 
 // Cubes 
         gl.useProgram(programInfo.program);
@@ -250,6 +244,7 @@ async function main() {
         
         gl.uniform3fv(programInfo.uniforms.ambientColor, ambientColor);
         gl.uniform3fv(programInfo.uniforms.diffuseColor, diffuseColor);
+        gl.uniform1f(programInfo.uniforms.diffuseStrength, diffuseStrength);
         gl.uniform3fv(programInfo.uniforms.specularColor, specularColor);
         gl.uniform1f(programInfo.uniforms.shininess, shininess);
         let lightPosition = lightPosCurrent;

@@ -8,14 +8,42 @@ export default class Settings {
         this.diffuseStrength = 1.0;
         this.shininess = 32.0;
 
-        let controls_vec3 = {
+        this.lightPosition = vec3.fromValues(0.0,4.0,4.0);
+        this.lightMovement = true;
+
+        let ctrl_lightX = document.getElementById("ctrl_lightPosX");
+        let ctrl_lightY = document.getElementById("ctrl_lightPosY");
+        let ctrl_lightZ = document.getElementById("ctrl_lightPosZ");
+        ctrl_lightX.value = this.lightPosition[0];
+        ctrl_lightY.value = this.lightPosition[1];
+        ctrl_lightZ.value = this.lightPosition[2];
+
+        ctrl_lightX.onchange = (event) => {
+            this.lightPosition[0] = event.target.value;
+        };
+        ctrl_lightY.onchange = (event) => {
+            this.lightPosition[1] = event.target.value;
+        };
+        ctrl_lightZ.onchange = (event) => {
+            this.lightPosition[2] = event.target.value;
+        };
+
+        document.getElementById("ctrl_rotatingLight").onchange = (event) => {
+            this.lightMovement = true;
+        };
+
+        document.getElementById("ctrl_staticLight").onchange = (event) => {
+            this.lightMovement = false;
+        };
+
+        let controls_colors = {
             ctrl_ambientColor: "ambientColor",
             ctrl_diffuseColor: "diffuseColor",
             ctrl_specularColor: "specularColor",
         };
-        for (let v in controls_vec3) {
+        for (let v in controls_colors) {
             let ctrl = document.getElementById(v);
-            let prop = this[controls_vec3[v]];
+            let prop = this[controls_colors[v]];
             let hex_r = (256 * prop[0] - 1).toString(16);
             let hex_g = (256 * prop[1] - 1).toString(16);
             let hex_b = (256 * prop[2] - 1).toString(16);
@@ -25,7 +53,7 @@ export default class Settings {
                 let hex_r = (parseInt(`${val[1]}${val[2]}`, 16) + 1) / 256;
                 let hex_g = (parseInt(`${val[3]}${val[4]}`, 16) + 1) / 256;
                 let hex_b = (parseInt(`${val[5]}${val[6]}`, 16) + 1) / 256;
-                this[controls_vec3[v]] = vec3.fromValues(hex_r, hex_g, hex_b);
+                this[controls_colors[v]] = vec3.fromValues(hex_r, hex_g, hex_b);
             }
         }
 
@@ -39,15 +67,9 @@ export default class Settings {
             let ctrl = document.getElementById(f);
             ctrl.value = this[controls_float[f]];
             ctrl.onchange = (event) => {
-                let value = parseFloat(event.target.value);
-                this[controls_float[f]] = value;
+                this[controls_float[f]] = event.target.value;
             }
         }
         
     }
-}
-
-function setColorValue(id, rgbvec3) {
-    let control = document.getElementById(id);
-    control.value = `${rgbvec3[0].toFixed(1)},${rgbvec3[1].toFixed(1)},${rgbvec3[2].toFixed(1)}`;
 }
