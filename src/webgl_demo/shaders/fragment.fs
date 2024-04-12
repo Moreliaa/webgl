@@ -4,6 +4,8 @@ varying highp vec3 vNormal;
 varying highp vec2 vTextureCoord;
 
 uniform sampler2D uSampler;
+uniform highp vec3 uObjectColor;
+uniform bool uIsTextured;
 uniform highp vec3 uAmbientColor;
 uniform highp vec3 uDiffuseColor;
 uniform highp float uDiffuseStrength;
@@ -22,5 +24,12 @@ void main() {
 
     highp float specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uShininess);
 
-    gl_FragColor = texture2D(uSampler, vTextureCoord) * vec4((uAmbientColor + uDiffuseStrength * diffFrag * uDiffuseColor  + specFrag * uSpecularColor), 1.0);
+    highp vec4 objectColor;
+    if (uIsTextured) {
+        objectColor = texture2D(uSampler, vTextureCoord);
+    } else {
+        objectColor = vec4(uObjectColor, 1.0);
+    }
+
+    gl_FragColor = objectColor * vec4((uAmbientColor + uDiffuseStrength * diffFrag * uDiffuseColor  + specFrag * uSpecularColor), 1.0);
 }

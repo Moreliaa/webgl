@@ -39,6 +39,8 @@ async function main() {
             shininess: gl.getUniformLocation(program, "uShininess"),
             lightPosition: gl.getUniformLocation(program, "uLightPosition"),
             cameraPosition: gl.getUniformLocation(program, "uCameraPosition"),
+            objectColor: gl.getUniformLocation(program, "uObjectColor"),
+            isTextured: gl.getUniformLocation(program, "uIsTextured"),
         }
     };
 
@@ -251,6 +253,9 @@ async function main() {
         let lightPositionAsVec = vec4.fromValues(...lightPosition, 1.0);
         gl.uniform4fv(programInfo.uniforms.lightPosition, lightPositionAsVec);
         gl.uniform4fv(programInfo.uniforms.cameraPosition, vec4.fromValues(...cameraPos, 1.0));
+
+        gl.uniform3fv(programInfo.uniforms.objectColor, settings.objectColor);
+        gl.uniform1i(programInfo.uniforms.isTextured, settings.isTextured);
 
         for (let cube of cubes) {
             let modelMatrix = mat4.create();

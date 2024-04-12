@@ -11,22 +11,8 @@ export default class Settings {
         this.lightPosition = vec3.fromValues(0.0,4.0,4.0);
         this.lightMovement = true;
 
-        let ctrl_lightX = document.getElementById("ctrl_lightPosX");
-        let ctrl_lightY = document.getElementById("ctrl_lightPosY");
-        let ctrl_lightZ = document.getElementById("ctrl_lightPosZ");
-        ctrl_lightX.value = this.lightPosition[0];
-        ctrl_lightY.value = this.lightPosition[1];
-        ctrl_lightZ.value = this.lightPosition[2];
-
-        ctrl_lightX.onchange = (event) => {
-            this.lightPosition[0] = event.target.value;
-        };
-        ctrl_lightY.onchange = (event) => {
-            this.lightPosition[1] = event.target.value;
-        };
-        ctrl_lightZ.onchange = (event) => {
-            this.lightPosition[2] = event.target.value;
-        };
+        this.isTextured = true;
+        this.objectColor = vec3.fromValues(1.0,0.5,0.31);
 
         document.getElementById("ctrl_rotatingLight").onchange = (event) => {
             this.lightMovement = true;
@@ -70,6 +56,27 @@ export default class Settings {
                 this[controls_float[f]] = event.target.value;
             }
         }
+
+        let ctrl_lightX = document.getElementById("ctrl_lightPosX");
+        let ctrl_lightY = document.getElementById("ctrl_lightPosY");
+        let ctrl_lightZ = document.getElementById("ctrl_lightPosZ");
+        ctrl_lightX.value = this.lightPosition[0];
+        ctrl_lightY.value = this.lightPosition[1];
+        ctrl_lightZ.value = this.lightPosition[2];
+
+        ctrl_lightX.onchange = (event) => {
+            this.lightPosition[0] = event.target.value;
+        };
+        ctrl_lightY.onchange = (event) => {
+            this.lightPosition[1] = event.target.value;
+        };
+        ctrl_lightZ.onchange = (event) => {
+            this.lightPosition[2] = event.target.value;
+        };
+
+        document.getElementById("ctrl_texture").onchange = (event) => {
+            this.isTextured = event.target.checked;
+        };
         
     }
 }
