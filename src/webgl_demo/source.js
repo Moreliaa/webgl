@@ -41,6 +41,7 @@ async function main() {
             cameraPosition: gl.getUniformLocation(program, "uCameraPosition"),
             objectColor: gl.getUniformLocation(program, "uObjectColor"),
             isTextured: gl.getUniformLocation(program, "uIsTextured"),
+            isPhongShading: gl.getUniformLocation(program, "uIsPhongShading"),
         }
     };
 
@@ -256,6 +257,7 @@ async function main() {
 
         gl.uniform3fv(programInfo.uniforms.objectColor, settings.objectColor);
         gl.uniform1i(programInfo.uniforms.isTextured, settings.isTextured);
+        gl.uniform1i(programInfo.uniforms.isPhongShading, settings.shadingStyle === settings.shadingStyles_enum.phong);
 
         for (let cube of cubes) {
             let modelMatrix = mat4.create();

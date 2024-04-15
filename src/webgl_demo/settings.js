@@ -14,6 +14,20 @@ export default class Settings {
         this.isTextured = true;
         this.objectColor = vec3.fromValues(1.0,0.5,0.31);
 
+        this.shadingStyles_enum = Object.freeze({
+            phong: Symbol("phong"),
+            gouraud: Symbol("gouraud"),
+        });
+        this.shadingStyle = this.shadingStyles_enum.phong;
+
+        document.getElementById("ctrl_phongShading").onchange = (event) => {
+            this.shadingStyle = this.shadingStyles_enum.phong;
+        };
+
+        document.getElementById("ctrl_gouraudShading").onchange = (event) => {
+            this.shadingStyle = this.shadingStyles_enum.gouraud;
+        };
+
         document.getElementById("ctrl_rotatingLight").onchange = (event) => {
             this.lightMovement = true;
         };

@@ -3,9 +3,14 @@ varying highp vec3 vNormal;
 
 varying highp vec2 vTextureCoord;
 
+varying highp vec4 vLightColorGouraud;
+
 uniform sampler2D uSampler;
 uniform highp vec3 uObjectColor;
+
 uniform bool uIsTextured;
+uniform bool uIsPhongShading;
+
 uniform highp vec3 uAmbientColor;
 uniform highp vec3 uDiffuseColor;
 uniform highp float uDiffuseStrength;
@@ -31,5 +36,13 @@ void main() {
         objectColor = vec4(uObjectColor, 1.0);
     }
 
-    gl_FragColor = objectColor * vec4((uAmbientColor + uDiffuseStrength * diffFrag * uDiffuseColor  + specFrag * uSpecularColor), 1.0);
+
+    highp vec4 lightColor;
+    if (uIsPhongShading) {
+        lightColor = vec4((uAmbientColor + uDiffuseStrength * diffFrag * uDiffuseColor  + specFrag * uSpecularColor), 1.0);
+    } else {
+        lightColor = vLightColorGouraud;
+    }
+
+    gl_FragColor = objectColor * lightColor;
 }
