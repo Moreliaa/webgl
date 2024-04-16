@@ -252,9 +252,9 @@ async function main() {
         gl.uniform3fv(programInfo.uniforms.specularColor, specularColor);
         gl.uniform1f(programInfo.uniforms.shininess, shininess);
         let lightPosition = lightPosCurrent;
-        let lightPositionAsVec = vec4.fromValues(...lightPosition, 1.0);
-        gl.uniform4fv(programInfo.uniforms.lightPosition, lightPositionAsVec);
-        gl.uniform4fv(programInfo.uniforms.cameraPosition, vec4.fromValues(...cameraPos, 1.0));
+        let lightPositionAsVec = vec3.fromValues(...lightPosition);
+        gl.uniform3fv(programInfo.uniforms.lightPosition, lightPositionAsVec);
+        gl.uniform3fv(programInfo.uniforms.cameraPosition, vec3.fromValues(...cameraPos));
 
         gl.uniform3fv(programInfo.uniforms.objectColor, settings.objectColor);
         gl.uniform1i(programInfo.uniforms.isTextured, settings.isTextured);
