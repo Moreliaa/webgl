@@ -10,6 +10,7 @@ uniform highp vec3 uObjectColor;
 
 uniform bool uIsTextured;
 uniform bool uIsPhongShading;
+uniform bool uIsBlinnPhongShading;
 
 uniform highp vec3 uAmbientColor;
 uniform highp vec3 uDiffuseColor;
@@ -27,7 +28,13 @@ void main() {
     highp vec4 reflectedLightDirection = reflect(-lightDirection, norm);
     highp vec4 viewDirection = normalize(uCameraPosition - vPosition);
 
-    highp float specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uShininess);
+    highp float specFrag;
+    if (uIsBlinnPhongShading) {
+        highp vec4 halfVector = normalize(viewDirection + lightDirection);
+        specFrag = pow(max(dot(halfVector, norm), 0.0), uShininess);
+     } else {
+        specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uShininess);
+     }
 
     highp vec4 objectColor;
     if (uIsTextured) {

@@ -16,9 +16,14 @@ export default class Settings {
 
         this.shadingStyles_enum = Object.freeze({
             phong: Symbol("phong"),
+            blinnphong: Symbol("blinnphong"),
             gouraud: Symbol("gouraud"),
         });
-        this.shadingStyle = this.shadingStyles_enum.phong;
+        this.shadingStyle = this.shadingStyles_enum.blinnphong;
+
+        document.getElementById("ctrl_blinnphongShading").onchange = (event) => {
+            this.shadingStyle = this.shadingStyles_enum.blinnphong;
+        }
 
         document.getElementById("ctrl_phongShading").onchange = (event) => {
             this.shadingStyle = this.shadingStyles_enum.phong;
@@ -92,5 +97,14 @@ export default class Settings {
             this.isTextured = event.target.checked;
         };
         
+    }
+
+    isPhongShading() {
+        return this.shadingStyle === this.shadingStyles_enum.phong ||
+            this.shadingStyle === this.shadingStyles_enum.blinnphong;
+    }
+
+    isBlinnPhongShading() {
+        return this.shadingStyle === this.shadingStyles_enum.blinnphong;
     }
 }
