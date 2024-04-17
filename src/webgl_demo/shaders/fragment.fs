@@ -12,11 +12,18 @@ uniform bool uIsTextured;
 uniform bool uIsPhongShading;
 uniform bool uIsBlinnPhongShading;
 
-uniform highp vec3 uAmbientColor;
-uniform highp vec3 uDiffuseColor;
+struct Material {
+    highp vec3 ambientColor;
+    highp vec3 diffuseColor;
+    highp vec3 specularColor;
+    highp float shininess;
+};
+
+uniform Material uMaterial;
+
 uniform highp float uDiffuseStrength;
-uniform highp vec3 uSpecularColor;
-uniform highp float uShininess;
+
+
 uniform highp vec3 uLightPosition;
 uniform highp vec3 uCameraPosition;
 
@@ -32,9 +39,9 @@ void main() {
     if (diffFrag > 0.0) {
         if (uIsBlinnPhongShading) {
             highp vec3 halfVector = normalize(viewDirection + lightDirection);
-            specFrag = pow(max(dot(halfVector, norm), 0.0), uShininess);
+            specFrag = pow(max(dot(halfVector, norm), 0.0), uMaterial.shininess);
         } else {
-            specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uShininess);
+            specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uMaterial.shininess);
         }
     }
 
@@ -48,7 +55,7 @@ void main() {
 
     highp vec4 lightColor;
     if (uIsPhongShading) {
-        lightColor = vec4((uAmbientColor + uDiffuseStrength * diffFrag * uDiffuseColor  + specFrag * uSpecularColor), 1.0);
+        lightColor = vec4((uMaterial.ambientColor + uDiffuseStrength * diffFrag * uMaterial.diffuseColor  + specFrag * uMaterial.specularColor), 1.0);
     } else {
         lightColor = vec4(vLightColorGouraud, 1.0);
     }
