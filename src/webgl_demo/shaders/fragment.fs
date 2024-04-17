@@ -6,7 +6,6 @@ varying highp vec2 vTextureCoord;
 varying highp vec3 vLightColorGouraud;
 
 uniform sampler2D uSampler;
-uniform highp vec3 uObjectColor;
 
 uniform bool uIsTextured;
 uniform bool uIsPhongShading;
@@ -45,11 +44,9 @@ void main() {
         }
     }
 
-    highp vec4 objectColor;
+    highp vec4 texColor = vec4(1.0,1.0,1.0,1.0);
     if (uIsTextured) {
-        objectColor = texture2D(uSampler, vTextureCoord);
-    } else {
-        objectColor = vec4(uObjectColor, 1.0);
+        texColor = texture2D(uSampler, vTextureCoord);
     }
 
 
@@ -60,5 +57,5 @@ void main() {
         lightColor = vec4(vLightColorGouraud, 1.0);
     }
 
-    gl_FragColor = objectColor * lightColor;
+    gl_FragColor = texColor * lightColor;
 }

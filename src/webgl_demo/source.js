@@ -39,7 +39,6 @@ async function main() {
             diffuseStrength: gl.getUniformLocation(program, "uDiffuseStrength"),
             lightPosition: gl.getUniformLocation(program, "uLightPosition"),
             cameraPosition: gl.getUniformLocation(program, "uCameraPosition"),
-            objectColor: gl.getUniformLocation(program, "uObjectColor"),
             isTextured: gl.getUniformLocation(program, "uIsTextured"),
             isPhongShading: gl.getUniformLocation(program, "uIsPhongShading"),
             isBlinnPhongShading: gl.getUniformLocation(program, "uIsBlinnPhongShading"),
@@ -256,7 +255,6 @@ async function main() {
         gl.uniform3fv(programInfo.uniforms.lightPosition, lightPositionAsVec);
         gl.uniform3fv(programInfo.uniforms.cameraPosition, vec3.fromValues(...cameraPos));
 
-        gl.uniform3fv(programInfo.uniforms.objectColor, settings.objectColor);
         gl.uniform1i(programInfo.uniforms.isTextured, settings.isTextured);
         gl.uniform1i(programInfo.uniforms.isPhongShading, settings.isPhongShading());
         gl.uniform1i(programInfo.uniforms.isBlinnPhongShading, settings.isBlinnPhongShading());

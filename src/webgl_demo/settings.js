@@ -14,7 +14,6 @@ export default class Settings {
         this.lightMovement = true;
 
         this.isTextured = true;
-        this.objectColor = vec3.fromValues(1.0,0.5,0.31);
 
         this.shadingStyles_enum = Object.freeze({
             phong: Symbol("phong"),
