@@ -40,7 +40,10 @@ void main() {
         highp vec3 reflectedLightDirection = reflect(-lightDirection, norm);
         highp vec3 viewDirection = normalize(uCameraPosition - vPosition);
 
-        highp float specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uShininess);
+        highp float specFrag = 0.0;
+        if (diffFrag > 0.0) {
+            specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uShininess);
+        }
         highp vec3 lightColor = uAmbientColor + uDiffuseStrength * diffFrag * uDiffuseColor  + specFrag * uSpecularColor;
         vLightColorGouraud = lightColor;
     }

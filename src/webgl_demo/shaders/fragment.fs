@@ -28,12 +28,14 @@ void main() {
     highp vec3 reflectedLightDirection = reflect(-lightDirection, norm);
     highp vec3 viewDirection = normalize(uCameraPosition - vPosition);
 
-    highp float specFrag;
-    if (uIsBlinnPhongShading) {
-        highp vec3 halfVector = normalize(viewDirection + lightDirection);
-        specFrag = pow(max(dot(halfVector, norm), 0.0), uShininess);
-    } else {
-        specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uShininess);
+    highp float specFrag = 0.0;
+    if (diffFrag > 0.0) {
+        if (uIsBlinnPhongShading) {
+            highp vec3 halfVector = normalize(viewDirection + lightDirection);
+            specFrag = pow(max(dot(halfVector, norm), 0.0), uShininess);
+        } else {
+            specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uShininess);
+        }
     }
 
     highp vec4 objectColor;
