@@ -2,7 +2,6 @@ import getDefaultMaterials from "./materials.js";
 
 export default class Settings {
     constructor () {
-        this.ambientColor = vec3.fromValues(0.3, 0.8, 0.8);
         this.diffuseColor = vec3.fromValues(0.8,0.3,0.3);
         this.specularColor = vec3.fromValues(0.8,0.3,0.3);
         this.shininess = 32.0;
@@ -43,7 +42,6 @@ export default class Settings {
         };
 
         let controls_colors = {
-            ctrl_ambientColor: "ambientColor",
             ctrl_diffuseColor: "diffuseColor",
             ctrl_specularColor: "specularColor",
             ctrl_lightAmbientColor: "lightAmbient",
@@ -108,11 +106,9 @@ export default class Settings {
         for (let m of defaultMaterials) {
             let ctrl = document.getElementById(`ctrl_mat_${m.name}`);
             ctrl.onclick = (event) => {
-                document.getElementById("ctrl_ambientColor").value = colorVec3ToHexString(m.ambient);
                 document.getElementById("ctrl_diffuseColor").value = colorVec3ToHexString(m.diffuse);
                 document.getElementById("ctrl_specularColor").value = colorVec3ToHexString(m.specular);
                 document.getElementById("ctrl_shininess").value = m.shininess;
-                this.ambientColor = m.ambient;
                 this.diffuseColor = m.diffuse;
                 this.specularColor = m.specular;
                 this.shininess = m.shininess;

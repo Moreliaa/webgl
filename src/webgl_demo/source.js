@@ -34,7 +34,6 @@ async function main() {
             view: gl.getUniformLocation(program, "uViewMatrix"),
             perspective: gl.getUniformLocation(program, "uPerspectiveMatrix"),
             sampler: gl.getUniformLocation(program, "uSampler"),
-            ambientColor: gl.getUniformLocation(program, "uMaterial.ambientColor"),
             diffuseColor: gl.getUniformLocation(program, "uMaterial.diffuseColor"),
             specularColor: gl.getUniformLocation(program, "uMaterial.specularColor"),
             shininess: gl.getUniformLocation(program, "uMaterial.shininess"),
@@ -190,7 +189,6 @@ async function main() {
         }
 
         // Settings
-        let ambientColor = settings.ambientColor;
         let diffuseColor = settings.diffuseColor;
         let specularColor = settings.specularColor;
         let shininess = settings.shininess;
@@ -250,7 +248,6 @@ async function main() {
         gl.uniformMatrix4fv(programInfo.uniforms.perspective, false, perspectiveMatrix);
         gl.uniformMatrix4fv(programInfo.uniforms.view, false, viewMatrix);
         
-        gl.uniform3fv(programInfo.uniforms.ambientColor, ambientColor);
         gl.uniform3fv(programInfo.uniforms.diffuseColor, diffuseColor);
         gl.uniform3fv(programInfo.uniforms.specularColor, specularColor);
         gl.uniform1f(programInfo.uniforms.shininess, shininess);
@@ -302,10 +299,20 @@ function loadTexture(gl, path) {
         let type = gl.UNSIGNED_BYTE;
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(target, level, internalformat, format, type, image);
-        gl.generateMipmap(gl.TEXTURE_2D);
+        if (isPow2(image.width) && isPow2(image.height)) {
+            gl.generateMipmap(gl.TEXTURE_2D);
+        } else {
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
 
     }
     image.src = path;
 
     return texture;
+}
+
+function isPow2(val) {
+    return val & (val - 1) === 0;
 }

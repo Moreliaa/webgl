@@ -12,7 +12,6 @@ uniform bool uIsPhongShading;
 uniform bool uIsBlinnPhongShading;
 
 struct Material {
-    highp vec3 ambientColor;
     highp vec3 diffuseColor;
     highp vec3 specularColor;
     highp float shininess;
@@ -56,7 +55,7 @@ void main() {
 
     highp vec4 lightColor;
     if (uIsPhongShading) {
-        lightColor = vec4((uMaterial.ambientColor * uLight.ambientColor + uLight.diffuseColor * diffFrag * uMaterial.diffuseColor  + uLight.specularColor * specFrag * uMaterial.specularColor), 1.0);
+        lightColor = vec4((uMaterial.diffuseColor * uLight.ambientColor + uLight.diffuseColor * diffFrag * uMaterial.diffuseColor  + uLight.specularColor * specFrag * uMaterial.specularColor), 1.0);
     } else {
         lightColor = vec4(vLightColorGouraud, 1.0);
     }

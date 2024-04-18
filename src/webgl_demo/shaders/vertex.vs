@@ -11,7 +11,6 @@ uniform mat4 uPerspectiveMatrix;
 uniform bool uIsPhongShading;
 
 struct Material {
-    highp vec3 ambientColor;
     highp vec3 diffuseColor;
     highp vec3 specularColor;
     highp float shininess;
@@ -55,7 +54,7 @@ void main() {
         if (diffFrag > 0.0) {
             specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uMaterial.shininess);
         }
-        highp vec3 lightColor = uMaterial.ambientColor * uLight.ambientColor + uLight.diffuseColor * diffFrag * uMaterial.diffuseColor  + uLight.specularColor * specFrag * uMaterial.specularColor;
+        highp vec3 lightColor = uMaterial.diffuseColor * uLight.ambientColor + uLight.diffuseColor * diffFrag * uMaterial.diffuseColor  + uLight.specularColor * specFrag * uMaterial.specularColor;
         vLightColorGouraud = lightColor;
     }
 }
