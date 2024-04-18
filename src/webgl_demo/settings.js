@@ -1,4 +1,4 @@
-import getDefaultMaterials from "../materials.js";
+import getDefaultMaterials from "./materials.js";
 
 export default class Settings {
     constructor () {
