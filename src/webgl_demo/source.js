@@ -38,8 +38,10 @@ async function main() {
             diffuseColor: gl.getUniformLocation(program, "uMaterial.diffuseColor"),
             specularColor: gl.getUniformLocation(program, "uMaterial.specularColor"),
             shininess: gl.getUniformLocation(program, "uMaterial.shininess"),
-            diffuseStrength: gl.getUniformLocation(program, "uDiffuseStrength"),
-            lightPosition: gl.getUniformLocation(program, "uLightPosition"),
+            lightPosition: gl.getUniformLocation(program, "uLight.position"),
+            lightAmbient: gl.getUniformLocation(program, "uLight.ambientColor"),
+            lightDiffuse: gl.getUniformLocation(program, "uLight.diffuseColor"),
+            lightSpecular: gl.getUniformLocation(program, "uLight.specularColor"),
             cameraPosition: gl.getUniformLocation(program, "uCameraPosition"),
             isTextured: gl.getUniformLocation(program, "uIsTextured"),
             isPhongShading: gl.getUniformLocation(program, "uIsPhongShading"),
@@ -58,7 +60,9 @@ async function main() {
             model: gl.getUniformLocation(program_pointLight, "uModelMatrix"),
             view: gl.getUniformLocation(program_pointLight, "uViewMatrix"),
             perspective: gl.getUniformLocation(program_pointLight, "uPerspectiveMatrix"),
-            lightColor: gl.getUniformLocation(program_pointLight, "uLightColor")
+            lightAmbient: gl.getUniformLocation(program_pointLight, "uLight.ambientColor"),
+            lightDiffuse: gl.getUniformLocation(program_pointLight, "uLight.diffuseColor"),
+            lightSpecular: gl.getUniformLocation(program_pointLight, "uLight.specularColor"),
         }
     };
 
@@ -186,11 +190,8 @@ async function main() {
         }
 
         // Settings
-        let ambientStrength = settings.ambientStrength;
-        let ambientColor = vec3.clone(settings.ambientColor);
-        vec3.scale(ambientColor, ambientColor, ambientStrength);
+        let ambientColor = settings.ambientColor;
         let diffuseColor = settings.diffuseColor;
-        let diffuseStrength = settings.diffuseStrength;
         let specularColor = settings.specularColor;
         let shininess = settings.shininess;
 
@@ -216,7 +217,9 @@ async function main() {
         gl.uniformMatrix4fv(programInfo_pointLight.uniforms.perspective, false, perspectiveMatrix);
         gl.uniformMatrix4fv(programInfo_pointLight.uniforms.view, false, viewMatrix);
 
-        gl.uniform3fv(programInfo_pointLight.uniforms.lightColor, diffuseColor);
+        gl.uniform3fv(programInfo_pointLight.uniforms.lightAmbient, settings.lightAmbient);
+        gl.uniform3fv(programInfo_pointLight.uniforms.lightDiffuse, settings.lightDiffuse);
+        gl.uniform3fv(programInfo_pointLight.uniforms.lightSpecular, settings.lightSpecular);
        
 
         let modelMatrix = mat4.create();
@@ -249,9 +252,12 @@ async function main() {
         
         gl.uniform3fv(programInfo.uniforms.ambientColor, ambientColor);
         gl.uniform3fv(programInfo.uniforms.diffuseColor, diffuseColor);
-        gl.uniform1f(programInfo.uniforms.diffuseStrength, diffuseStrength);
         gl.uniform3fv(programInfo.uniforms.specularColor, specularColor);
         gl.uniform1f(programInfo.uniforms.shininess, shininess);
+
+        gl.uniform3fv(programInfo.uniforms.lightAmbient, settings.lightAmbient);
+        gl.uniform3fv(programInfo.uniforms.lightDiffuse, settings.lightDiffuse);
+        gl.uniform3fv(programInfo.uniforms.lightSpecular, settings.lightSpecular);
         let lightPosition = lightPosCurrent;
         let lightPositionAsVec = vec3.fromValues(...lightPosition);
         gl.uniform3fv(programInfo.uniforms.lightPosition, lightPositionAsVec);

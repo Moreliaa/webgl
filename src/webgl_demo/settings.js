@@ -5,12 +5,12 @@ export default class Settings {
         this.ambientColor = vec3.fromValues(0.3, 0.8, 0.8);
         this.diffuseColor = vec3.fromValues(0.8,0.3,0.3);
         this.specularColor = vec3.fromValues(0.8,0.3,0.3);
-
-        this.ambientStrength = 0.2;
-        this.diffuseStrength = 1.0;
         this.shininess = 32.0;
 
         this.lightPosition = vec3.fromValues(0.0,4.0,4.0);
+        this.lightAmbient = vec3.fromValues(0.3,0.3,0.3);
+        this.lightDiffuse = vec3.fromValues(0.5,0.5,0.5);
+        this.lightSpecular = vec3.fromValues(1.0,1.0,1.0);
         this.lightMovement = true;
 
         this.isTextured = true;
@@ -46,6 +46,9 @@ export default class Settings {
             ctrl_ambientColor: "ambientColor",
             ctrl_diffuseColor: "diffuseColor",
             ctrl_specularColor: "specularColor",
+            ctrl_lightAmbientColor: "lightAmbient",
+            ctrl_lightDiffuseColor: "lightDiffuse",
+            ctrl_lightSpecularColor: "lightSpecular",
         };
         for (let v in controls_colors) {
             let ctrl = document.getElementById(v);
@@ -62,8 +65,6 @@ export default class Settings {
 
 
         let controls_float = {
-            ctrl_ambientStrength: "ambientStrength",
-            ctrl_diffuseStrength: "diffuseStrength",
             ctrl_shininess: "shininess",
         };
         for (let f in controls_float) {

@@ -18,17 +18,21 @@ struct Material {
     highp float shininess;
 };
 
+struct Light {
+    highp vec3 position;
+    highp vec3 ambientColor;
+    highp vec3 diffuseColor;
+    highp vec3 specularColor;
+};
+
 uniform Material uMaterial;
+uniform Light uLight;
 
-uniform highp float uDiffuseStrength;
-
-
-uniform highp vec3 uLightPosition;
 uniform highp vec3 uCameraPosition;
 
 void main() {
     highp vec3 norm = normalize(vNormal);
-    highp vec3 lightDirection = normalize(uLightPosition - vPosition);
+    highp vec3 lightDirection = normalize(uLight.position - vPosition);
     highp float diffFrag = max(dot(lightDirection, norm), 0.0);
 
     highp vec3 reflectedLightDirection = reflect(-lightDirection, norm);
@@ -52,7 +56,7 @@ void main() {
 
     highp vec4 lightColor;
     if (uIsPhongShading) {
-        lightColor = vec4((uMaterial.ambientColor + uDiffuseStrength * diffFrag * uMaterial.diffuseColor  + specFrag * uMaterial.specularColor), 1.0);
+        lightColor = vec4((uMaterial.ambientColor * uLight.ambientColor + uLight.diffuseColor * diffFrag * uMaterial.diffuseColor  + uLight.specularColor * specFrag * uMaterial.specularColor), 1.0);
     } else {
         lightColor = vec4(vLightColorGouraud, 1.0);
     }
