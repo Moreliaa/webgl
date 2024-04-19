@@ -49,7 +49,7 @@ void main() {
     }
 
     highp vec4 texColorDiffuse = vec4(1.0,1.0,1.0,1.0);
-    highp vec4 texColorSpecular = vec4(0.0,0.0,0.0,0.0);
+    highp vec4 texColorSpecular = vec4(1.0,1.0,1.0,1.0);
     if (uIsTextured) {
         texColorDiffuse = texture2D(uSamplerDiffuse, vTextureCoord);
         texColorSpecular = texture2D(uSamplerSpecular, vTextureCoord);
