@@ -39,6 +39,8 @@ async function main() {
             specularColor: gl.getUniformLocation(program, "uMaterial.specularColor"),
             shininess: gl.getUniformLocation(program, "uMaterial.shininess"),
             lightPosition: gl.getUniformLocation(program, "uLight.position"),
+            attenuationLinear: gl.getUniformLocation(program, "uLight.attenuationLinear"),
+            attenuationSquare: gl.getUniformLocation(program, "uLight.attenuationSquare"),
             lightAmbient: gl.getUniformLocation(program, "uLight.ambientColor"),
             lightDiffuse: gl.getUniformLocation(program, "uLight.diffuseColor"),
             lightSpecular: gl.getUniformLocation(program, "uLight.specularColor"),
@@ -82,11 +84,19 @@ async function main() {
     }
 
     let cubes = [
-        { translation: [0, 0, 0], rotation: degToRad(0) },
+        { translation: [0, 0, 0],    rotation: degToRad(0) },
         { translation: [-10, -5, 0], rotation: degToRad(40) },
-        { translation: [10, 5, 0], rotation: degToRad(70) },
-        //{translation: [0,0,-2], rotation: degToRad(30)},
-        //{translation: [0,0,2], rotation: degToRad(120)},
+        { translation: [10, 5, 0],   rotation: degToRad(70) },
+        { translation: [-23, 0, -2], rotation: degToRad(100)},
+        { translation: [0, -13, -12],  rotation: degToRad(130)},
+        { translation: [-8, 5, -13.7],    rotation: degToRad(0) },
+        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) },
+        { translation: [-12, -8, 8.2],   rotation: degToRad(70) },
+        { translation: [14, -14, -15.2], rotation: degToRad(100)},
+        { translation: [15, -9, -25],  rotation: degToRad(130)},
+        { translation: [-8, 5, -30.7],    rotation: degToRad(170) },
+        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) },
+        { translation: [-12, -8, -38.2],   rotation: degToRad(230) },
     ];
 
     let then = 0;
@@ -122,9 +132,10 @@ async function main() {
 
 
     let cameraPos = vec3.create();
-    cameraPos[2] = 5.0;
+    cameraPos[2] = 8.0;
+    cameraPos[1] = 8.0;
     let cameraUp = vec3.create();
-    cameraUp[1] = 2.0;
+    cameraUp[1] = 1.0;
 
     const PAN_SPEED = 10;
     const keyboard = new Keyboard();
@@ -144,8 +155,9 @@ async function main() {
         rotation = rotation + delta;
 
         // light position
-        let z = settings.lightPosition[2] * Math.cos(degToRad(rotation * 20));
-        let y = settings.lightPosition[1] * Math.sin(degToRad(rotation * 20));
+        let lightSpeed = 40;
+        let z = settings.lightPosition[2] * Math.cos(degToRad(rotation * lightSpeed));
+        let y = settings.lightPosition[1] * Math.sin(degToRad(rotation * lightSpeed));
         let lightPosCurrent = settings.lightMovement ? vec3.fromValues(settings.lightPosition[0], y, z) : settings.lightPosition;
 
         let cameraFront = vec3.create();
@@ -257,6 +269,9 @@ async function main() {
         gl.uniform3fv(programInfo.uniforms.diffuseColor, diffuseColor);
         gl.uniform3fv(programInfo.uniforms.specularColor, specularColor);
         gl.uniform1f(programInfo.uniforms.shininess, shininess);
+
+        gl.uniform1f(programInfo.uniforms.attenuationLinear, settings.attenuationLinear);
+        gl.uniform1f(programInfo.uniforms.attenuationSquare, settings.attenuationSquare);
 
         gl.uniform3fv(programInfo.uniforms.lightAmbient, settings.lightAmbient);
         gl.uniform3fv(programInfo.uniforms.lightDiffuse, settings.lightDiffuse);

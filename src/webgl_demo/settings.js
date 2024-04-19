@@ -7,6 +7,8 @@ export default class Settings {
         this.shininess = 32.0;
 
         this.lightPosition = vec3.fromValues(0.0,4.0,4.0);
+        this.attenuationLinear = 0.014;
+        this.attenuationSquare = 0.007;
         this.lightAmbient = vec3.fromValues(0.3,0.3,0.3);
         this.lightDiffuse = vec3.fromValues(0.5,0.5,0.5);
         this.lightSpecular = vec3.fromValues(1.0,1.0,1.0);
@@ -88,6 +90,17 @@ export default class Settings {
         };
         ctrl_lightZ.onchange = (event) => {
             this.lightPosition[2] = event.target.value;
+        };
+
+        let ctrl_attenuationLinear = document.getElementById("ctrl_attenuationLinear");
+        let ctrl_attenuationSquare = document.getElementById("ctrl_attenuationSquare");
+        ctrl_attenuationLinear.value = this.attenuationLinear;
+        ctrl_attenuationSquare.value = this.attenuationSquare;
+        ctrl_attenuationLinear.onchange = (event) => {
+            this.attenuationLinear = event.target.value;
+        };
+        ctrl_attenuationSquare.onchange = (event) => {
+            this.attenuationSquare = event.target.value;
         };
 
         document.getElementById("ctrl_texture").onchange = (event) => {

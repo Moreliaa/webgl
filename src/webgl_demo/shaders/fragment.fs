@@ -20,6 +20,8 @@ struct Material {
 
 struct Light {
     highp vec3 position;
+    highp float attenuationLinear;
+    highp float attenuationSquare;
     highp vec3 ambientColor;
     highp vec3 diffuseColor;
     highp vec3 specularColor;
@@ -55,15 +57,19 @@ void main() {
         texColorSpecular = texture2D(uSamplerSpecular, vTextureCoord);
     }
 
+    highp float distanceFragToLight = length(uLight.position - vPosition);
+    highp float attenuation = 1.0 / (1.0 + (distanceFragToLight * uLight.attenuationLinear) + (pow(distanceFragToLight, 2.0) * uLight.attenuationSquare));
 
-    highp vec4 colorDiffuse;
-    highp vec4 colorSpecular;
+    highp vec4 diffuse;
+    highp vec4 specular;
+    highp vec4 ambient;
     if (uIsPhongShading) {
-        colorDiffuse = vec4((uMaterial.diffuseColor * uLight.ambientColor + uLight.diffuseColor * diffFrag * uMaterial.diffuseColor), 1.0);
-        colorSpecular = vec4((uLight.specularColor * specFrag * uMaterial.specularColor), 1.0);
+        ambient = vec4((uMaterial.diffuseColor * uLight.ambientColor * attenuation), 1.0);
+        diffuse = vec4((uLight.diffuseColor * diffFrag * uMaterial.diffuseColor * attenuation), 1.0);
+        specular = vec4((uLight.specularColor * specFrag * uMaterial.specularColor * attenuation), 1.0);
     } else {
-        colorDiffuse = vec4(vLightColorGouraud, 1.0);
+        diffuse = vec4(vLightColorGouraud, 1.0);
     }
 
-    gl_FragColor = texColorDiffuse * colorDiffuse + texColorSpecular * colorSpecular;
+    gl_FragColor = texColorDiffuse * ambient + texColorDiffuse * diffuse + texColorSpecular * specular;
 }

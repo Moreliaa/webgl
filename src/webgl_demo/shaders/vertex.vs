@@ -18,6 +18,8 @@ struct Material {
 
 struct Light {
     highp vec3 position;
+    highp float attenuationLinear;
+    highp float attenuationSquare;
     highp vec3 ambientColor;
     highp vec3 diffuseColor;
     highp vec3 specularColor;
@@ -54,7 +56,12 @@ void main() {
         if (diffFrag > 0.0) {
             specFrag = pow(max(dot(reflectedLightDirection, viewDirection), 0.0), uMaterial.shininess);
         }
+
+        highp float distanceFragToLight = length(uLight.position - vPosition);
+        highp float attenuation = 1.0 / (1.0 + (distanceFragToLight * uLight.attenuationLinear) + (pow(distanceFragToLight, 2.0) * uLight.attenuationSquare));
+
+
         highp vec3 lightColor = uMaterial.diffuseColor * uLight.ambientColor + uLight.diffuseColor * diffFrag * uMaterial.diffuseColor  + uLight.specularColor * specFrag * uMaterial.specularColor;
-        vLightColorGouraud = lightColor;
+        vLightColorGouraud = lightColor * attenuation;
     }
 }
