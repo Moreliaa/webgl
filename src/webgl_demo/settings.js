@@ -2,8 +2,8 @@ import getDefaultMaterials from "./materials.js";
 
 export default class Settings {
     constructor () {
-        this.diffuseColor = vec3.fromValues(0.8,0.3,0.3);
-        this.specularColor = vec3.fromValues(0.8,0.3,0.3);
+        this.diffuseColor = vec3.fromValues(1.0,1.0,1.0);
+        this.specularColor = vec3.fromValues(1.0,1.0,1.0);
         this.shininess = 32.0;
 
         this.lightPosition = vec3.fromValues(0.0,4.0,4.0);

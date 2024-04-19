@@ -5,7 +5,8 @@ varying highp vec2 vTextureCoord;
 
 varying highp vec3 vLightColorGouraud;
 
-uniform sampler2D uSampler;
+uniform sampler2D uSamplerDiffuse;
+uniform sampler2D uSamplerSpecular;
 
 uniform bool uIsTextured;
 uniform bool uIsPhongShading;
@@ -47,18 +48,22 @@ void main() {
         }
     }
 
-    highp vec4 texColor = vec4(1.0,1.0,1.0,1.0);
+    highp vec4 texColorDiffuse = vec4(1.0,1.0,1.0,1.0);
+    highp vec4 texColorSpecular = vec4(0.0,0.0,0.0,0.0);
     if (uIsTextured) {
-        texColor = texture2D(uSampler, vTextureCoord);
+        texColorDiffuse = texture2D(uSamplerDiffuse, vTextureCoord);
+        texColorSpecular = texture2D(uSamplerSpecular, vTextureCoord);
     }
 
 
-    highp vec4 lightColor;
+    highp vec4 colorDiffuse;
+    highp vec4 colorSpecular;
     if (uIsPhongShading) {
-        lightColor = vec4((uMaterial.diffuseColor * uLight.ambientColor + uLight.diffuseColor * diffFrag * uMaterial.diffuseColor  + uLight.specularColor * specFrag * uMaterial.specularColor), 1.0);
+        colorDiffuse = vec4((uMaterial.diffuseColor * uLight.ambientColor + uLight.diffuseColor * diffFrag * uMaterial.diffuseColor), 1.0);
+        colorSpecular = vec4((uLight.specularColor * specFrag * uMaterial.specularColor), 1.0);
     } else {
-        lightColor = vec4(vLightColorGouraud, 1.0);
+        colorDiffuse = vec4(vLightColorGouraud, 1.0);
     }
 
-    gl_FragColor = texColor * lightColor;
+    gl_FragColor = texColorDiffuse * colorDiffuse + texColorSpecular * colorSpecular;
 }

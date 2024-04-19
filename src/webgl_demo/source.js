@@ -33,7 +33,8 @@ async function main() {
             normal: gl.getUniformLocation(program, "uNormalMatrix"),
             view: gl.getUniformLocation(program, "uViewMatrix"),
             perspective: gl.getUniformLocation(program, "uPerspectiveMatrix"),
-            sampler: gl.getUniformLocation(program, "uSampler"),
+            samplerDiffuse: gl.getUniformLocation(program, "uSamplerDiffuse"),
+            samplerSpecular: gl.getUniformLocation(program, "uSamplerSpecular"),
             diffuseColor: gl.getUniformLocation(program, "uMaterial.diffuseColor"),
             specularColor: gl.getUniformLocation(program, "uMaterial.specularColor"),
             shininess: gl.getUniformLocation(program, "uMaterial.shininess"),
@@ -66,7 +67,8 @@ async function main() {
     };
 
     let buffers = initBuffers(gl);
-    let texture = loadTexture(gl, "assets/mytexture.png");
+    let textureDiffuse = loadTexture(gl, "assets/container2.png");
+    let textureSpecular = loadTexture(gl, "assets/container2_specular.png");
     
 
     
@@ -135,7 +137,6 @@ async function main() {
             canvas.height = canvas.clientHeight;
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         }
-
 
         now = now * 0.001;
         let delta = now - then;
@@ -228,10 +229,15 @@ async function main() {
 
 // Cubes 
         gl.useProgram(programInfo.program);
-        gl.activeTexture(gl.TEXTURE0);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
-        gl.uniform1i(programInfo.uniforms.sampler, 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textureDiffuse);
+        gl.uniform1i(programInfo.uniforms.samplerDiffuse, 0);
+
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, textureSpecular);
+        gl.uniform1i(programInfo.uniforms.samplerSpecular, 1);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureBuffer);
         gl.vertexAttribPointer(programInfo.attributes.texture, 2, gl.FLOAT, false, 0, 0);
