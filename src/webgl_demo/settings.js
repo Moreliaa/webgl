@@ -13,7 +13,12 @@ export default class Settings {
         this.lightDiffuse = vec3.fromValues(0.5,0.5,0.5);
         this.lightSpecular = vec3.fromValues(1.0,1.0,1.0);
         this.lightMovement = true;
-        this.isDirectionalLighting = false; // otherwise point lighting
+        
+        this.isDirLighting = true;
+        this.dirLightDirection = vec3.fromValues(0.0,4.0,4.0);
+        this.dirLightAmbient = vec3.fromValues(0.3,0.3,0.3);
+        this.dirLightDiffuse = vec3.fromValues(0.5,0.5,0.5);
+        this.dirLightSpecular = vec3.fromValues(1.0,1.0,1.0);
 
         this.isTextured = true;
 
@@ -23,6 +28,10 @@ export default class Settings {
             gouraud: Symbol("gouraud"),
         });
         this.shadingStyle = this.shadingStyles_enum.blinnphong;
+
+        document.getElementById("ctrl_directionalLighting").onchange = (event) => {
+            this.isDirLighting = event.target.checked;
+        }
 
         document.getElementById("ctrl_blinnphongShading").onchange = (event) => {
             this.shadingStyle = this.shadingStyles_enum.blinnphong;
@@ -102,12 +111,6 @@ export default class Settings {
         };
         ctrl_attenuationSquare.onchange = (event) => {
             this.attenuationSquare = event.target.value;
-        };
-
-        document.getElementById("ctrl_directionalLight").onchange = (event) => {
-            this.isDirectionalLighting = event.target.checked;
-            ctrl_attenuationLinear.disabled = event.target.checked;
-            ctrl_attenuationSquare.disabled = event.target.checked;
         };
 
         document.getElementById("ctrl_texture").onchange = (event) => {

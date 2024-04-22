@@ -45,10 +45,14 @@ async function main() {
             lightDiffuse: gl.getUniformLocation(program, "uLight.diffuseColor"),
             lightSpecular: gl.getUniformLocation(program, "uLight.specularColor"),
             cameraPosition: gl.getUniformLocation(program, "uCameraPosition"),
+            isDirLighting: gl.getUniformLocation(program, "uIsDirLighting"),
+            dirLightDirection: gl.getUniformLocation(program, "uDirLight.direction"),
+            dirLightAmbient: gl.getUniformLocation(program, "uDirLight.ambientColor"),
+            dirLightDiffuse: gl.getUniformLocation(program, "uDirLight.diffuseColor"),
+            dirLightSpecular: gl.getUniformLocation(program, "uDirLight.specularColor"),
             isTextured: gl.getUniformLocation(program, "uIsTextured"),
             isPhongShading: gl.getUniformLocation(program, "uIsPhongShading"),
             isBlinnPhongShading: gl.getUniformLocation(program, "uIsBlinnPhongShading"),
-            isDirectionalLighting: gl.getUniformLocation(program, "uIsDirectionalLighting"),
         }
     };
 
@@ -282,10 +286,16 @@ async function main() {
         gl.uniform3fv(programInfo.uniforms.lightPosition, lightPositionAsVec);
         gl.uniform3fv(programInfo.uniforms.cameraPosition, vec3.fromValues(...cameraPos));
 
+        // Directional light
+        gl.uniform1i(programInfo.uniforms.isDirLighting, settings.isDirLighting);
+        gl.uniform3fv(programInfo.uniforms.dirLightDirection, settings.dirLightDirection);
+        gl.uniform3fv(programInfo.uniforms.dirLightAmbient, settings.dirLightAmbient);
+        gl.uniform3fv(programInfo.uniforms.dirLightDiffuse, settings.dirLightDiffuse);
+        gl.uniform3fv(programInfo.uniforms.dirLightSpecular, settings.dirLightSpecular);
+
         gl.uniform1i(programInfo.uniforms.isTextured, settings.isTextured);
         gl.uniform1i(programInfo.uniforms.isPhongShading, settings.isPhongShading());
         gl.uniform1i(programInfo.uniforms.isBlinnPhongShading, settings.isBlinnPhongShading());
-        gl.uniform1i(programInfo.uniforms.isDirectionalLighting, settings.isDirectionalLighting);
 
         for (let cube of cubes) {
             let modelMatrix = mat4.create();

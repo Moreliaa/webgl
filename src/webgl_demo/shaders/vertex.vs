@@ -16,7 +16,7 @@ struct Material {
     highp float shininess;
 };
 
-struct Light {
+struct PointLight {
     highp vec3 position;
     highp float attenuationLinear;
     highp float attenuationSquare;
@@ -26,7 +26,7 @@ struct Light {
 };
 
 uniform Material uMaterial;
-uniform Light uLight;
+uniform PointLight uLight;
 
 uniform highp vec3 uCameraPosition;
 
