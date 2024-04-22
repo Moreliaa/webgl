@@ -13,6 +13,7 @@ export default class Settings {
         this.lightDiffuse = vec3.fromValues(0.5,0.5,0.5);
         this.lightSpecular = vec3.fromValues(1.0,1.0,1.0);
         this.lightMovement = true;
+        this.isDirectionalLighting = false; // otherwise point lighting
 
         this.isTextured = true;
 
@@ -101,6 +102,12 @@ export default class Settings {
         };
         ctrl_attenuationSquare.onchange = (event) => {
             this.attenuationSquare = event.target.value;
+        };
+
+        document.getElementById("ctrl_directionalLight").onchange = (event) => {
+            this.isDirectionalLighting = event.target.checked;
+            ctrl_attenuationLinear.disabled = event.target.checked;
+            ctrl_attenuationSquare.disabled = event.target.checked;
         };
 
         document.getElementById("ctrl_texture").onchange = (event) => {

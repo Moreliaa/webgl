@@ -11,6 +11,7 @@ uniform sampler2D uSamplerSpecular;
 uniform bool uIsTextured;
 uniform bool uIsPhongShading;
 uniform bool uIsBlinnPhongShading;
+uniform bool uIsDirectionalLighting;
 
 struct Material {
     highp vec3 diffuseColor;
@@ -34,7 +35,13 @@ uniform highp vec3 uCameraPosition;
 
 void main() {
     highp vec3 norm = normalize(vNormal);
-    highp vec3 lightDirection = normalize(uLight.position - vPosition);
+    highp vec3 lightDirection;
+    if (uIsDirectionalLighting) {
+       lightDirection = normalize(uLight.position);
+    } else {
+       lightDirection = normalize(uLight.position - vPosition);
+    }
+
     highp float diffFrag = max(dot(lightDirection, norm), 0.0);
 
     highp vec3 reflectedLightDirection = reflect(-lightDirection, norm);
@@ -58,7 +65,12 @@ void main() {
     }
 
     highp float distanceFragToLight = length(uLight.position - vPosition);
-    highp float attenuation = 1.0 / (1.0 + (distanceFragToLight * uLight.attenuationLinear) + (pow(distanceFragToLight, 2.0) * uLight.attenuationSquare));
+    highp float attenuation;
+    if (uIsDirectionalLighting) {
+        attenuation = 1.0;
+    } else {
+        attenuation = 1.0 / (1.0 + (distanceFragToLight * uLight.attenuationLinear) + (pow(distanceFragToLight, 2.0) * uLight.attenuationSquare));
+    }
 
     highp vec4 diffuse;
     highp vec4 specular;

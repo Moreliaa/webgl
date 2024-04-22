@@ -48,6 +48,7 @@ async function main() {
             isTextured: gl.getUniformLocation(program, "uIsTextured"),
             isPhongShading: gl.getUniformLocation(program, "uIsPhongShading"),
             isBlinnPhongShading: gl.getUniformLocation(program, "uIsBlinnPhongShading"),
+            isDirectionalLighting: gl.getUniformLocation(program, "uIsDirectionalLighting"),
         }
     };
 
@@ -284,6 +285,7 @@ async function main() {
         gl.uniform1i(programInfo.uniforms.isTextured, settings.isTextured);
         gl.uniform1i(programInfo.uniforms.isPhongShading, settings.isPhongShading());
         gl.uniform1i(programInfo.uniforms.isBlinnPhongShading, settings.isBlinnPhongShading());
+        gl.uniform1i(programInfo.uniforms.isDirectionalLighting, settings.isDirectionalLighting);
 
         for (let cube of cubes) {
             let modelMatrix = mat4.create();
