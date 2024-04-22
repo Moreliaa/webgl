@@ -15,9 +15,9 @@ export default class Settings {
         this.lightMovement = true;
         
         this.isDirLighting = true;
-        this.dirLightDirection = vec3.fromValues(0.0,4.0,4.0);
-        this.dirLightAmbient = vec3.fromValues(0.3,0.3,0.3);
-        this.dirLightDiffuse = vec3.fromValues(0.5,0.5,0.5);
+        this.dirLightDirection = vec3.fromValues(-2.0,-1.0,0.0);
+        this.dirLightAmbient = vec3.fromValues(0.1,0.1,0.2);
+        this.dirLightDiffuse = vec3.fromValues(0.2,0.2,0.6);
         this.dirLightSpecular = vec3.fromValues(1.0,1.0,1.0);
 
         this.isTextured = true;
