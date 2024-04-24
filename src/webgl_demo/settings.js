@@ -20,6 +20,13 @@ export default class Settings {
         this.dirLightDiffuse = vec3.fromValues(0.2,0.2,0.6);
         this.dirLightSpecular = vec3.fromValues(1.0,1.0,1.0);
 
+        this.isFlashlight = true;
+        this.flashlightAngleCutoffInner = 25;
+        this.flashlightAngleCutoffOuter = 35;
+        this.flashlightAmbient = vec3.fromValues(0.05,0.05,0.05);
+        this.flashlightDiffuse = vec3.fromValues(0.5,0.8,0.9);
+        this.flashlightSpecular = vec3.fromValues(1.0,1.0,1.0);
+
         this.isTextured = true;
 
         this.shadingStyles_enum = Object.freeze({
@@ -28,6 +35,31 @@ export default class Settings {
             gouraud: Symbol("gouraud"),
         });
         this.shadingStyle = this.shadingStyles_enum.blinnphong;
+
+
+        document.getElementById("ctrl_flashlightActive").onchange = (event) => {
+            this.isFlashlight = event.target.checked;
+        }
+
+        let ctrl_flashlightAngleCutoffInner = document.getElementById("ctrl_flashlightAngleCutoffInner");
+        let ctrl_flashlightAngleCutoffOuter = document.getElementById("ctrl_flashlightAngleCutoffOuter");
+        ctrl_flashlightAngleCutoffInner.value = this.flashlightAngleCutoffInner;
+        ctrl_flashlightAngleCutoffOuter.value = this.flashlightAngleCutoffOuter;
+        ctrl_flashlightAngleCutoffInner.onchange = (event) => {
+            this.flashlightAngleCutoffInner = event.target.value;
+            if (this.flashlightAngleCutoffOuter < this.flashlightAngleCutoffInner) {
+                this.flashlightAngleCutoffOuter = this.flashlightAngleCutoffInner;
+                ctrl_flashlightAngleCutoffOuter.value = this.flashlightAngleCutoffInner;
+            }
+        }
+
+        ctrl_flashlightAngleCutoffOuter.onchange = (event) => {
+            this.flashlightAngleCutoffOuter = event.target.value;
+            if (this.flashlightAngleCutoffInner > this.flashlightAngleCutoffOuter) {
+                this.flashlightAngleCutoffInner = this.flashlightAngleCutoffOuter;
+                ctrl_flashlightAngleCutoffInner.value = this.flashlightAngleCutoffOuter;
+            }
+        }
 
         document.getElementById("ctrl_directionalLighting").onchange = (event) => {
             this.isDirLighting = event.target.checked;
@@ -59,6 +91,9 @@ export default class Settings {
             ctrl_lightAmbientColor: "lightAmbient",
             ctrl_lightDiffuseColor: "lightDiffuse",
             ctrl_lightSpecularColor: "lightSpecular",
+            ctrl_flashlightAmbientColor: "flashlightAmbient",
+            ctrl_flashlightDiffuseColor: "flashlightDiffuse",
+            ctrl_flashlightSpecularColor: "flashlightSpecular",
         };
         for (let v in controls_colors) {
             let ctrl = document.getElementById(v);

@@ -50,6 +50,14 @@ async function main() {
             dirLightAmbient: gl.getUniformLocation(program, "uDirLight.ambientColor"),
             dirLightDiffuse: gl.getUniformLocation(program, "uDirLight.diffuseColor"),
             dirLightSpecular: gl.getUniformLocation(program, "uDirLight.specularColor"),
+            isFlashlight: gl.getUniformLocation(program, "uIsFlashlight"),
+            flashlightPosition: gl.getUniformLocation(program, "uFlashlight.position"),
+            flashlightDirection: gl.getUniformLocation(program, "uFlashlight.direction"),
+            flashlightAngleCutoffInner: gl.getUniformLocation(program, "uFlashlight.angleCutoffInner"),
+            flashlightAngleCutoffOuter: gl.getUniformLocation(program, "uFlashlight.angleCutoffOuter"),
+            flashlightAmbient: gl.getUniformLocation(program, "uFlashlight.ambientColor"),
+            flashlightDiffuse: gl.getUniformLocation(program, "uFlashlight.diffuseColor"),
+            flashlightSpecular: gl.getUniformLocation(program, "uFlashlight.specularColor"),
             isTextured: gl.getUniformLocation(program, "uIsTextured"),
             isPhongShading: gl.getUniformLocation(program, "uIsPhongShading"),
             isBlinnPhongShading: gl.getUniformLocation(program, "uIsBlinnPhongShading"),
@@ -292,6 +300,15 @@ async function main() {
         gl.uniform3fv(programInfo.uniforms.dirLightAmbient, settings.dirLightAmbient);
         gl.uniform3fv(programInfo.uniforms.dirLightDiffuse, settings.dirLightDiffuse);
         gl.uniform3fv(programInfo.uniforms.dirLightSpecular, settings.dirLightSpecular);
+
+        gl.uniform1i(programInfo.uniforms.isFlashlight, settings.isFlashlight);
+        gl.uniform3fv(programInfo.uniforms.flashlightPosition, cameraPos);
+        gl.uniform3fv(programInfo.uniforms.flashlightDirection, cameraFront);
+        gl.uniform1f(programInfo.uniforms.flashlightAngleCutoffInner, Math.cos(degToRad(settings.flashlightAngleCutoffInner)));
+        gl.uniform1f(programInfo.uniforms.flashlightAngleCutoffOuter, Math.cos(degToRad(settings.flashlightAngleCutoffOuter)));
+        gl.uniform3fv(programInfo.uniforms.flashlightAmbient, settings.flashlightAmbient);
+        gl.uniform3fv(programInfo.uniforms.flashlightDiffuse, settings.flashlightDiffuse);
+        gl.uniform3fv(programInfo.uniforms.flashlightSpecular, settings.flashlightSpecular);
 
         gl.uniform1i(programInfo.uniforms.isTextured, settings.isTextured);
         gl.uniform1i(programInfo.uniforms.isPhongShading, settings.isPhongShading());
