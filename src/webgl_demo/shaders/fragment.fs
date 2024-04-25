@@ -3,8 +3,6 @@ varying highp vec3 vNormal;
 
 varying highp vec2 vTextureCoord;
 
-varying highp vec3 vLightColorGouraud;
-
 uniform sampler2D uSamplerDiffuse;
 uniform sampler2D uSamplerSpecular;
 
@@ -110,13 +108,9 @@ highp vec3 calcDirLight(DirectionalLight light, highp vec3 texColorDiffuse, high
     highp vec3 ambient;
     highp vec3 diffuse;
     highp vec3 specular;
-    if (uIsPhongShading) {
-        ambient = (uMaterial.diffuseColor * light.ambientColor);
-        diffuse = (light.diffuseColor * diffFrag * uMaterial.diffuseColor);
-        specular = (light.specularColor * specFrag * uMaterial.specularColor);
-    } else {
-        diffuse = vLightColorGouraud;
-    }
+    ambient = (uMaterial.diffuseColor * light.ambientColor);
+    diffuse = (light.diffuseColor * diffFrag * uMaterial.diffuseColor);
+    specular = (light.specularColor * specFrag * uMaterial.specularColor);
     return texColorDiffuse * ambient + texColorDiffuse * diffuse + texColorSpecular * specular;
 }
 
@@ -146,13 +140,9 @@ highp vec3 calcPointLight(PointLight light, highp vec3 texColorDiffuse, highp ve
     highp vec3 ambient;
     highp vec3 diffuse;
     highp vec3 specular;
-    if (uIsPhongShading) {
-        ambient = (uMaterial.diffuseColor * light.ambientColor * attenuation);
-        diffuse = (light.diffuseColor * diffFrag * uMaterial.diffuseColor * attenuation);
-        specular = (light.specularColor * specFrag * uMaterial.specularColor * attenuation);
-    } else {
-        diffuse = vLightColorGouraud;
-    }
+    ambient = (uMaterial.diffuseColor * light.ambientColor * attenuation);
+    diffuse = (light.diffuseColor * diffFrag * uMaterial.diffuseColor * attenuation);
+    specular = (light.specularColor * specFrag * uMaterial.specularColor * attenuation);
     return texColorDiffuse * ambient + texColorDiffuse * diffuse + texColorSpecular * specular;
 }
 

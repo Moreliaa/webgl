@@ -31,7 +31,7 @@
                     <label for="ctrl_texture">Texture</label>
                 </div>
                 <div id="controls_subsection">
-                    <div><b>Light</b></div>
+                    <div><b>Point Light</b></div>
                     <input id="ctrl_lightAmbientColor" type="color">
                     <label for="ctrl_lightAmbientColor">Ambient Color</label>
                     <br>
@@ -56,14 +56,25 @@
                     <label for="ctrl_attenuationLinear">Attenuation (Linear)</label>
                     <br>
                     <input id="ctrl_attenuationSquare" class="ctrlCoord" type="number" step="0.001" min="0.0">
-                    <label for="ctrl_attenuationSquare">Attenuation (Quadratic)</label>
-                    <br>
+                    <label for="ctrl_attenuationSquare">Attenuation (Quadratic)</label>                    
+                </div>
+                <div id="controls_subsection">
                     <input id="ctrl_directionalLighting" type="checkbox" checked>
-                    <label for="ctrl_directionalLighting">Directional Lighting</label>
+                    <label for="ctrl_directionalLighting"><b>Directional Lighting</b></label>
+                    <br>
+                    <input id="ctrl_dirLightAmbientColor" type="color">
+                    <label for="ctrl_dirLightAmbientColor">Ambient Color</label>
+                    <br>
+                    <input id="ctrl_dirLightDiffuseColor" type="color">
+                    <label for="ctrl_dirLightDiffuseColor">Diffuse Color</label>
+                    <br>
+                    <input id="ctrl_dirLightSpecularColor" type="color">
+                    <label for="ctrl_dirLightSpecularColor">Specular Color</label>
+                    <br>
                 </div>
                 <div id="controls_subsection">
                     <input id="ctrl_flashlightActive" type="checkbox" checked>
-                    <label for="ctrl_flashlightActive">Flashlight</label>
+                    <label for="ctrl_flashlightActive"><b>Flashlight</b></label>
                     <br>
                     <input id="ctrl_flashlightAmbientColor" type="color">
                     <label for="ctrl_flashlightAmbientColor">Ambient Color</label>
@@ -86,8 +97,6 @@
                     <label for="ctrl_blinnphongShading">Blinn-Phong</label>
                     <input id="ctrl_phongShading" type="radio" name="shadingStyle">
                     <label for="ctrl_phongShading">Phong</label>
-                    <input id="ctrl_gouraudShading" type="radio" name="shadingStyle">
-                    <label for="ctrl_gouraudShading">Gouraud</label>
                 </div>
             </div>
         </div>

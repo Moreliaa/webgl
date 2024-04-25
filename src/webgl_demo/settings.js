@@ -23,7 +23,7 @@ export default class Settings {
         this.isFlashlight = true;
         this.flashlightAngleCutoffInner = 25;
         this.flashlightAngleCutoffOuter = 35;
-        this.flashlightAmbient = vec3.fromValues(0.05,0.05,0.05);
+        this.flashlightAmbient = vec3.fromValues(0.5,0.5,0.5);
         this.flashlightDiffuse = vec3.fromValues(0.5,0.8,0.9);
         this.flashlightSpecular = vec3.fromValues(1.0,1.0,1.0);
 
@@ -31,8 +31,7 @@ export default class Settings {
 
         this.shadingStyles_enum = Object.freeze({
             phong: Symbol("phong"),
-            blinnphong: Symbol("blinnphong"),
-            gouraud: Symbol("gouraud"),
+            blinnphong: Symbol("blinnphong")
         });
         this.shadingStyle = this.shadingStyles_enum.blinnphong;
 
@@ -73,10 +72,6 @@ export default class Settings {
             this.shadingStyle = this.shadingStyles_enum.phong;
         };
 
-        document.getElementById("ctrl_gouraudShading").onchange = (event) => {
-            this.shadingStyle = this.shadingStyles_enum.gouraud;
-        };
-
         document.getElementById("ctrl_rotatingLight").onchange = (event) => {
             this.lightMovement = true;
         };
@@ -91,6 +86,9 @@ export default class Settings {
             ctrl_lightAmbientColor: "lightAmbient",
             ctrl_lightDiffuseColor: "lightDiffuse",
             ctrl_lightSpecularColor: "lightSpecular",
+            ctrl_dirLightAmbientColor: "dirLightAmbient",
+            ctrl_dirLightDiffuseColor: "dirLightDiffuse",
+            ctrl_dirLightSpecularColor: "dirLightSpecular",
             ctrl_flashlightAmbientColor: "flashlightAmbient",
             ctrl_flashlightDiffuseColor: "flashlightDiffuse",
             ctrl_flashlightSpecularColor: "flashlightSpecular",
