@@ -21,27 +21,6 @@ async function main() {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
-    let textureDiffuse = loadTexture(gl, "assets/container2.png");
-    let textureSpecular = loadTexture(gl, "assets/container2_specular.png");
-    let buffers = initBuffers(gl);
-
-    let NUM_VERTICES_CUBE = 36;
-    let cubes = [
-        { translation: [0, 0, 0],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
-        { translation: [-10, -5, 0], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
-        { translation: [10, 5, 0],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
-        { translation: [-23, 0, -2], rotation: degToRad(100), scale: [5.0,5.0,5.0] },
-        { translation: [0, -13, -12],  rotation: degToRad(130), scale: [5.0,5.0,5.0] },
-        { translation: [-8, 5, -13.7],    rotation: degToRad(0) , scale: [5.0,5.0,5.0] },
-        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
-        { translation: [-12, -8, 8.2],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
-        { translation: [14, -14, -15.2], rotation: degToRad(100), scale: [5.0,5.0,5.0] },
-        { translation: [15, -9, -25],  rotation: degToRad(130), scale: [5.0,5.0,5.0] },
-        { translation: [-8, 5, -30.7],    rotation: degToRad(170) , scale: [5.0,5.0,5.0] },
-        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) , scale: [5.0,5.0,5.0] },
-        { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: [5.0,5.0,5.0] }, 
-    ];
-
     let program = await initShaderProgram(gl, "vertex.vs", "fragment.fs");
     let programInfo = {
         program: program,
@@ -86,6 +65,26 @@ async function main() {
             isBlinnPhongShading: gl.getUniformLocation(program, "uIsBlinnPhongShading"),
         }
     };
+
+    let NUM_VERTICES_CUBE = 36;
+    let cubes = [
+        { translation: [0, 0, 0],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
+        { translation: [-10, -5, 0], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
+        { translation: [10, 5, 0],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
+        { translation: [-23, 0, -2], rotation: degToRad(100), scale: [5.0,5.0,5.0] },
+        { translation: [0, -13, -12],  rotation: degToRad(130), scale: [5.0,5.0,5.0] },
+        { translation: [-8, 5, -13.7],    rotation: degToRad(0) , scale: [5.0,5.0,5.0] },
+        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
+        { translation: [-12, -8, 8.2],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
+        { translation: [14, -14, -15.2], rotation: degToRad(100), scale: [5.0,5.0,5.0] },
+        { translation: [15, -9, -25],  rotation: degToRad(130), scale: [5.0,5.0,5.0] },
+        { translation: [-8, 5, -30.7],    rotation: degToRad(170) , scale: [5.0,5.0,5.0] },
+        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) , scale: [5.0,5.0,5.0] },
+        { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: [5.0,5.0,5.0] }, 
+    ];
+    let textureDiffuse = loadTexture(gl, "assets/container2.png");
+    let textureSpecular = loadTexture(gl, "assets/container2_specular.png");
+    let buffers = initBuffers(gl);
 
     let bufferInfo_cube = [
         { index: programInfo.attributes.position, buffer: buffers.vertexBuffer, size: 3 },
@@ -151,10 +150,11 @@ async function main() {
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+            //document.getElementById("#controls").height = "88vh";
         }
     }
 
-    console.log(objectsToDraw)
     function render(now) {
         checkResize();
 

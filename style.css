@@ -5,10 +5,11 @@
     height: 88vh;
     background-color: rgba(1.0, 1.0, 0.0, 0.5);
     color:white;
+    overflow-y: auto;
 }
 
 #controls_subsection {
-    margin-top: 1px;
+    margin: 1px;
     padding: 5px;
     border: 1px solid lightgray;
 }
