@@ -23,7 +23,7 @@ export default class Settings {
         this.isFlashlight = true;
         this.flashlightAngleCutoffInner = 25;
         this.flashlightAngleCutoffOuter = 35;
-        this.flashlightAmbient = vec3.fromValues(0.5,0.5,0.5);
+        this.flashlightAmbient = vec3.fromValues(0.1,0.1,0.1);
         this.flashlightDiffuse = vec3.fromValues(0.5,0.8,0.9);
         this.flashlightSpecular = vec3.fromValues(1.0,1.0,1.0);
 

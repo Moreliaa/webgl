@@ -1,6 +1,8 @@
 import { initBuffers } from "./buffers.js";
 import Keyboard from "./keyboard.js";
+import Mouse from "./mouse.js";
 import Settings from "./settings.js";
+import Camera from "./camera.js";
 import { initShaderProgram } from "./program.js";
 
 main();
@@ -84,13 +86,6 @@ async function main() {
     let buffers = initBuffers(gl);
     let textureDiffuse = loadTexture(gl, "assets/container2.png");
     let textureSpecular = loadTexture(gl, "assets/container2_specular.png");
-    
-
-    
-
-    /*let perspectiveMatrix = mat4.create();
-    mat4.ortho(perspectiveMatrix, -3, 3, -3, 3, 1, 10);
-    gl.uniformMatrix4fv(programInfo.uniforms.perspective, false, perspectiveMatrix);*/
 
     function degToRad(deg) {
         return deg * Math.PI / 180;
@@ -115,52 +110,22 @@ async function main() {
     let then = 0;
     let rotation = 0;
 
-    let yaw = -90;
-    let pitch = 0;
-    let pitch_max = 89;
-    let pitch_min = -89;
-    let mouseSensitivity = 0.5;
-    
-    canvas.onclick = captureMouse;
-
-    async function captureMouse(e) {
-        await canvas.requestPointerLock({
-            unadjustedMovement: true, // turn off mouse acceleration
-        });
-    }
-
-    document.onmousemove = (e) => {
-        if (document.pointerLockElement !== canvas) {
-            return;
-        }
-        yaw += e.movementX * mouseSensitivity;
-        //yaw = yaw % 360;
-        pitch -= e.movementY * mouseSensitivity;
-        if (pitch > pitch_max) {
-            pitch = pitch_max;
-        } else if (pitch < pitch_min) {
-            pitch = pitch_min;
-        }
-    }
-
-
-    let cameraPos = vec3.create();
-    cameraPos[2] = 8.0;
-    cameraPos[1] = 8.0;
-    let cameraUp = vec3.create();
-    cameraUp[1] = 1.0;
-
-    const PAN_SPEED = 10;
+   
     const keyboard = new Keyboard();
+    const mouse = new Mouse();
     const settings = new Settings();
+    const camera = new Camera(mouse);
 
-    function render(now) {
-        // check resize
+    function checkResize() {
         if (canvas.width !== canvas.clientWidth || canvas.height != canvas.clientHeight) {
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         }
+    }
+
+    function render(now) {
+        checkResize();
 
         now = now * 0.001;
         let delta = now - then;
@@ -173,51 +138,7 @@ async function main() {
         let y = settings.lightPosition[1] * Math.sin(degToRad(rotation * lightSpeed));
         let lightPosCurrent = settings.lightMovement ? vec3.fromValues(settings.lightPosition[0], y, z) : settings.lightPosition;
 
-        let cameraFront = vec3.create();
-        let yaw_rad = degToRad(yaw);
-        let pitch_rad = degToRad(pitch);
-        cameraFront[0] = Math.cos(yaw_rad) * Math.cos(pitch_rad);
-        cameraFront[1] = Math.sin(pitch_rad);
-        cameraFront[2] = Math.sin(yaw_rad) * Math.cos(pitch_rad);
-        vec3.normalize(cameraFront, cameraFront);
-
-// Controls
-        if (keyboard.keys.back && !keyboard.keys.forward) {
-            let offset = vec3.create();
-            vec3.scale(offset, cameraFront, delta * PAN_SPEED);
-            vec3.sub(cameraPos, cameraPos, offset);
-        } else if (keyboard.keys.forward && !keyboard.keys.back) {
-            let offset = vec3.create();
-            vec3.scale(offset, cameraFront, delta * PAN_SPEED);
-            vec3.add(cameraPos, cameraPos, offset)
-        }
-
-        if (keyboard.keys.left && !keyboard.keys.right) {
-            let offset = vec3.create();
-            vec3.cross(offset, cameraFront, cameraUp);
-            vec3.scale(offset, offset, delta * PAN_SPEED);
-            vec3.sub(cameraPos, cameraPos, offset);
-        } else if (keyboard.keys.right && !keyboard.keys.left) {
-            let offset = vec3.create();
-            vec3.cross(offset, cameraFront, cameraUp);
-            vec3.scale(offset, offset, delta * PAN_SPEED);
-            vec3.add(cameraPos, cameraPos, offset);
-        }
-
-        if (keyboard.keys.up && !keyboard.keys.down) {
-            let offset = vec3.create();
-            vec3.scale(offset, cameraUp, delta * PAN_SPEED);
-            vec3.add(cameraPos, cameraPos, offset);
-        } else if (!keyboard.keys.up && keyboard.keys.down) {
-            let offset = vec3.create();
-            vec3.scale(offset, cameraUp, delta * PAN_SPEED);
-            vec3.sub(cameraPos, cameraPos, offset);
-        }
-
-        // Settings
-        let diffuseColor = settings.diffuseColor;
-        let specularColor = settings.specularColor;
-        let shininess = settings.shininess;
+        let {cameraPos, cameraUp, cameraFront} = camera.handleInput(mouse, keyboard);
 
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -279,9 +200,9 @@ async function main() {
         gl.uniformMatrix4fv(programInfo.uniforms.perspective, false, perspectiveMatrix);
         gl.uniformMatrix4fv(programInfo.uniforms.view, false, viewMatrix);
         
-        gl.uniform3fv(programInfo.uniforms.diffuseColor, diffuseColor);
-        gl.uniform3fv(programInfo.uniforms.specularColor, specularColor);
-        gl.uniform1f(programInfo.uniforms.shininess, shininess);
+        gl.uniform3fv(programInfo.uniforms.diffuseColor, settings.diffuseColor);
+        gl.uniform3fv(programInfo.uniforms.specularColor, settings.specularColor);
+        gl.uniform1f(programInfo.uniforms.shininess, settings.shininess);
 
         gl.uniform1f(programInfo.uniforms.attenuationLinear, settings.attenuationLinear);
         gl.uniform1f(programInfo.uniforms.attenuationSquare, settings.attenuationSquare);
