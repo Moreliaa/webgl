@@ -18,13 +18,13 @@ export default class Mouse {
             if (document.pointerLockElement !== canvas) {
                 return;
             }
-            yaw += e.movementX * mouseSensitivity;
+            this.yaw += e.movementX * this.mouseSensitivity;
             //yaw = yaw % 360;
-            pitch -= e.movementY * mouseSensitivity;
-            if (pitch > pitch_max) {
-                pitch = pitch_max;
-            } else if (pitch < pitch_min) {
-                pitch = pitch_min;
+            this.pitch -= e.movementY * this.mouseSensitivity;
+            if (this.pitch > this.pitch_max) {
+                this.pitch = this.pitch_max;
+            } else if (this.pitch < this.pitch_min) {
+                this.pitch = this.pitch_min;
             }
         }
     }

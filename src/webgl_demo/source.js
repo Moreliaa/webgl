@@ -4,6 +4,7 @@ import Mouse from "./mouse.js";
 import Settings from "./settings.js";
 import Camera from "./camera.js";
 import { initShaderProgram } from "./program.js";
+import { degToRad } from "./util.js";
 
 main();
 
@@ -20,13 +21,33 @@ async function main() {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
+    let textureDiffuse = loadTexture(gl, "assets/container2.png");
+    let textureSpecular = loadTexture(gl, "assets/container2_specular.png");
+    let buffers = initBuffers(gl);
+
+    let NUM_VERTICES_CUBE = 36;
+    let cubes = [
+        { translation: [0, 0, 0],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
+        { translation: [-10, -5, 0], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
+        { translation: [10, 5, 0],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
+        { translation: [-23, 0, -2], rotation: degToRad(100), scale: [5.0,5.0,5.0] },
+        { translation: [0, -13, -12],  rotation: degToRad(130), scale: [5.0,5.0,5.0] },
+        { translation: [-8, 5, -13.7],    rotation: degToRad(0) , scale: [5.0,5.0,5.0] },
+        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
+        { translation: [-12, -8, 8.2],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
+        { translation: [14, -14, -15.2], rotation: degToRad(100), scale: [5.0,5.0,5.0] },
+        { translation: [15, -9, -25],  rotation: degToRad(130), scale: [5.0,5.0,5.0] },
+        { translation: [-8, 5, -30.7],    rotation: degToRad(170) , scale: [5.0,5.0,5.0] },
+        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) , scale: [5.0,5.0,5.0] },
+        { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: [5.0,5.0,5.0] }, 
+    ];
+
     let program = await initShaderProgram(gl, "vertex.vs", "fragment.fs");
     let programInfo = {
         program: program,
         attributes: {
             position: gl.getAttribLocation(program, "aPosition"),
             normal: gl.getAttribLocation(program, "aNormal"),
-            color: gl.getAttribLocation(program, "aColor"),
             texture: gl.getAttribLocation(program, "aTextureCoord"),
         },
 
@@ -66,13 +87,31 @@ async function main() {
         }
     };
 
+    let bufferInfo_cube = [
+        { index: programInfo.attributes.position, buffer: buffers.vertexBuffer, size: 3 },
+        { index: programInfo.attributes.normal, buffer: buffers.normalsBuffer, size: 3 },
+        { index: programInfo.attributes.texture, buffer: buffers.textureBuffer, size: 2 },
+    ];
+
+    let objectsToDraw = [];
+    for (let c of cubes) {
+        objectsToDraw.push({
+            translation: c.translation,
+            rotation: c.rotation,
+            scale: c.scale,
+            textureDiffuse: textureDiffuse,
+            textureSpecular: textureSpecular,
+            bufferInfo: bufferInfo_cube,
+            numVertices: NUM_VERTICES_CUBE,
+        });
+    }
+
     let program_pointLight = await initShaderProgram(gl, "vertex_point-light.vs", "fragment_point-light.fs");
     let programInfo_pointLight = {
         program: program_pointLight,
         attributes: {
             position: gl.getAttribLocation(program_pointLight, "aPosition"),
         },
-
         uniforms: {
             model: gl.getUniformLocation(program_pointLight, "uModelMatrix"),
             view: gl.getUniformLocation(program_pointLight, "uViewMatrix"),
@@ -83,38 +122,29 @@ async function main() {
         }
     };
 
-    let buffers = initBuffers(gl);
-    let textureDiffuse = loadTexture(gl, "assets/container2.png");
-    let textureSpecular = loadTexture(gl, "assets/container2_specular.png");
-
-    function degToRad(deg) {
-        return deg * Math.PI / 180;
-    }
-
-    let cubes = [
-        { translation: [0, 0, 0],    rotation: degToRad(0) },
-        { translation: [-10, -5, 0], rotation: degToRad(40) },
-        { translation: [10, 5, 0],   rotation: degToRad(70) },
-        { translation: [-23, 0, -2], rotation: degToRad(100)},
-        { translation: [0, -13, -12],  rotation: degToRad(130)},
-        { translation: [-8, 5, -13.7],    rotation: degToRad(0) },
-        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) },
-        { translation: [-12, -8, 8.2],   rotation: degToRad(70) },
-        { translation: [14, -14, -15.2], rotation: degToRad(100)},
-        { translation: [15, -9, -25],  rotation: degToRad(130)},
-        { translation: [-8, 5, -30.7],    rotation: degToRad(170) },
-        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) },
-        { translation: [-12, -8, -38.2],   rotation: degToRad(230) },
-    ];
-
     let then = 0;
     let rotation = 0;
 
    
     const keyboard = new Keyboard();
-    const mouse = new Mouse();
+    const mouse = new Mouse(canvas);
     const settings = new Settings();
     const camera = new Camera(mouse);
+
+    function setAttributes(bufferInfo) {
+        for (let b of bufferInfo) {
+            let index = b.index;
+            let buffer = b.buffer;
+            let size = b.size;
+            if (index === undefined || size === undefined || buffer === undefined) {
+                console.error("setAttributes: incorrect input format: ", b);
+                continue;
+            }
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.vertexAttribPointer(index, size, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(index);
+        }
+    }
 
     function checkResize() {
         if (canvas.width !== canvas.clientWidth || canvas.height != canvas.clientHeight) {
@@ -124,6 +154,7 @@ async function main() {
         }
     }
 
+    console.log(objectsToDraw)
     function render(now) {
         checkResize();
 
@@ -132,16 +163,13 @@ async function main() {
         then = now;
         rotation = rotation + delta;
 
-        // light position
+        // point light position
         let lightSpeed = 40;
         let z = settings.lightPosition[2] * Math.cos(degToRad(rotation * lightSpeed));
         let y = settings.lightPosition[1] * Math.sin(degToRad(rotation * lightSpeed));
         let lightPosCurrent = settings.lightMovement ? vec3.fromValues(settings.lightPosition[0], y, z) : settings.lightPosition;
 
-        let {cameraPos, cameraUp, cameraFront} = camera.handleInput(mouse, keyboard);
-
-        // Render
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        let {cameraPos, cameraUp, cameraFront} = camera.handleInput(mouse, keyboard, delta);
 
         let cameraTarget = vec3.create();
         vec3.add(cameraTarget, cameraPos, cameraFront);
@@ -152,50 +180,35 @@ async function main() {
         let perspectiveMatrix = mat4.create();
         mat4.perspective(perspectiveMatrix, 90, canvas.clientWidth / canvas.clientHeight, 1, 100);
 
-        // Lights
-        gl.useProgram(programInfo_pointLight.program);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertexBuffer);
-        gl.vertexAttribPointer(programInfo_pointLight.attributes.position, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(programInfo_pointLight.attributes.position);
+        // Render
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        gl.uniformMatrix4fv(programInfo_pointLight.uniforms.perspective, false, perspectiveMatrix);
-        gl.uniformMatrix4fv(programInfo_pointLight.uniforms.view, false, viewMatrix);
+        // Point Light
+        {
+            gl.useProgram(programInfo_pointLight.program);
 
-        gl.uniform3fv(programInfo_pointLight.uniforms.lightAmbient, settings.lightAmbient);
-        gl.uniform3fv(programInfo_pointLight.uniforms.lightDiffuse, settings.lightDiffuse);
-        gl.uniform3fv(programInfo_pointLight.uniforms.lightSpecular, settings.lightSpecular);
-       
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertexBuffer);
+            gl.vertexAttribPointer(programInfo_pointLight.attributes.position, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(programInfo_pointLight.attributes.position);
 
-        let modelMatrix = mat4.create();
-        mat4.translate(modelMatrix, modelMatrix, lightPosCurrent);
-        mat4.scale(modelMatrix,modelMatrix, [0.5, 0.5, 0.5]);
-        gl.uniformMatrix4fv(programInfo_pointLight.uniforms.model, false, modelMatrix);
-        gl.drawArrays(gl.TRIANGLES, 0, 36);
+            gl.uniformMatrix4fv(programInfo_pointLight.uniforms.perspective, false, perspectiveMatrix);
+            gl.uniformMatrix4fv(programInfo_pointLight.uniforms.view, false, viewMatrix);
 
-// Cubes 
+            gl.uniform3fv(programInfo_pointLight.uniforms.lightAmbient, settings.lightAmbient);
+            gl.uniform3fv(programInfo_pointLight.uniforms.lightDiffuse, settings.lightDiffuse);
+            gl.uniform3fv(programInfo_pointLight.uniforms.lightSpecular, settings.lightSpecular);
+        
+            let modelMatrix = mat4.create();
+            mat4.translate(modelMatrix, modelMatrix, lightPosCurrent);
+            mat4.scale(modelMatrix,modelMatrix, [0.5, 0.5, 0.5]);
+            gl.uniformMatrix4fv(programInfo_pointLight.uniforms.model, false, modelMatrix);
+            gl.drawArrays(gl.TRIANGLES, 0, 36);
+        }
+
+        // Objects 
         gl.useProgram(programInfo.program);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, textureDiffuse);
-        gl.uniform1i(programInfo.uniforms.samplerDiffuse, 0);
-
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, textureSpecular);
-        gl.uniform1i(programInfo.uniforms.samplerSpecular, 1);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureBuffer);
-        gl.vertexAttribPointer(programInfo.attributes.texture, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(programInfo.attributes.texture);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertexBuffer);
-        gl.vertexAttribPointer(programInfo.attributes.position, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(programInfo.attributes.position);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normalsBuffer);
-        gl.vertexAttribPointer(programInfo.attributes.normal, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(programInfo.attributes.normal);
 
         gl.uniformMatrix4fv(programInfo.uniforms.perspective, false, perspectiveMatrix);
         gl.uniformMatrix4fv(programInfo.uniforms.view, false, viewMatrix);
@@ -204,18 +217,15 @@ async function main() {
         gl.uniform3fv(programInfo.uniforms.specularColor, settings.specularColor);
         gl.uniform1f(programInfo.uniforms.shininess, settings.shininess);
 
-        gl.uniform1f(programInfo.uniforms.attenuationLinear, settings.attenuationLinear);
-        gl.uniform1f(programInfo.uniforms.attenuationSquare, settings.attenuationSquare);
-
         gl.uniform3fv(programInfo.uniforms.lightAmbient, settings.lightAmbient);
         gl.uniform3fv(programInfo.uniforms.lightDiffuse, settings.lightDiffuse);
         gl.uniform3fv(programInfo.uniforms.lightSpecular, settings.lightSpecular);
-        let lightPosition = lightPosCurrent;
-        let lightPositionAsVec = vec3.fromValues(...lightPosition);
-        gl.uniform3fv(programInfo.uniforms.lightPosition, lightPositionAsVec);
+        gl.uniform3fv(programInfo.uniforms.lightPosition, settings.lightPosition);
+        gl.uniform1f(programInfo.uniforms.attenuationLinear, settings.attenuationLinear);
+        gl.uniform1f(programInfo.uniforms.attenuationSquare, settings.attenuationSquare);
+
         gl.uniform3fv(programInfo.uniforms.cameraPosition, vec3.fromValues(...cameraPos));
 
-        // Directional light
         gl.uniform1i(programInfo.uniforms.isDirLighting, settings.isDirLighting);
         gl.uniform3fv(programInfo.uniforms.dirLightDirection, settings.dirLightDirection);
         gl.uniform3fv(programInfo.uniforms.dirLightAmbient, settings.dirLightAmbient);
@@ -235,11 +245,21 @@ async function main() {
         gl.uniform1i(programInfo.uniforms.isPhongShading, settings.isPhongShading());
         gl.uniform1i(programInfo.uniforms.isBlinnPhongShading, settings.isBlinnPhongShading());
 
-        for (let cube of cubes) {
+        gl.uniform1i(programInfo.uniforms.samplerDiffuse, 0);
+        gl.uniform1i(programInfo.uniforms.samplerSpecular, 1);
+        for (let object of objectsToDraw) {
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, object.textureDiffuse);
+
+            gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, object.textureSpecular);
+
+            setAttributes(object.bufferInfo);
+            
             let modelMatrix = mat4.create();
-            mat4.translate(modelMatrix, modelMatrix, cube.translation);
-            mat4.rotate(modelMatrix, modelMatrix, cube.rotation, [0, 0, 1]);
-            mat4.scale(modelMatrix, modelMatrix, [5,5,5]);
+            mat4.translate(modelMatrix, modelMatrix, object.translation);
+            mat4.rotate(modelMatrix, modelMatrix, object.rotation, [0,0,1]);
+            mat4.scale(modelMatrix, modelMatrix, object.scale);
             gl.uniformMatrix4fv(programInfo.uniforms.model, false, modelMatrix);
 
             let normalMatrix = mat3.create();
@@ -248,7 +268,7 @@ async function main() {
             mat3.transpose(normalMatrix, normalMatrix);
             gl.uniformMatrix3fv(programInfo.uniforms.normal, false, normalMatrix);
             
-            gl.drawArrays(gl.TRIANGLES, 0, 36);
+            gl.drawArrays(gl.TRIANGLES, 0, object.numVertices);
         }
 
         requestAnimationFrame(render);

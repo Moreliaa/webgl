@@ -1,10 +1,12 @@
+import { degToRad } from "./util.js";
+
 const PAN_SPEED = 10;
 
 export default class Camera {
     constructor(mouse) {
         this.pos = vec3.fromValues(0.0,8.0,8.0);
         this.up = vec3.fromValues(0.0,1.0,0.0);
-        this.front = setFront(mouse);
+        this.front = this.setFront(mouse);
     }
 
     setFront(mouse) {
@@ -19,8 +21,8 @@ export default class Camera {
         return cameraFront;
     }
 
-    handleInput(mouse, keyboard) {
-        this.front = setFront(mouse);
+    handleInput(mouse, keyboard, delta) {
+        this.front = this.setFront(mouse);
         if (keyboard.keys.back && !keyboard.keys.forward) {
             let offset = vec3.create();
             vec3.scale(offset, this.front, delta * PAN_SPEED);

@@ -1,6 +1,5 @@
 attribute vec4 aPosition;
 attribute vec3 aNormal;
-attribute vec4 aColor;
 attribute vec2 aTextureCoord;
 
 uniform mat4 uModelMatrix;
