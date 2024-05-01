@@ -5,6 +5,7 @@ import Settings from "./settings.js";
 import Camera from "./camera.js";
 import { initShaderProgram } from "./program.js";
 import { degToRad } from "./util.js";
+import Node from "./node.js";
 
 main();
 
@@ -67,7 +68,7 @@ async function main() {
     };
 
     let NUM_VERTICES_CUBE = 36;
-    let cubes = [
+    let cubes = [ // TODO cleanup
         { translation: [0, 0, 0],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
         { translation: [-10, -5, 0], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
         { translation: [10, 5, 0],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
@@ -82,6 +83,24 @@ async function main() {
         { translation: [-6, 8.5, -40.8], rotation: degToRad(200) , scale: [5.0,5.0,5.0] },
         { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: [5.0,5.0,5.0] }, 
     ];
+    let nodes = [];
+    let newcubes = [
+        { translation: [0, 5, -3],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
+        { translation: [0, 1, -2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
+        { translation: [0, 1, -2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
+        { translation: [0, 1, -2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
+        { translation: [0, 1, 2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
+        { translation: [0, 1, 2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
+        { translation: [0, 1, 2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
+    ];
+    for (let i = 0; i < newcubes.length; i++) {
+        let c = newcubes[i];
+        let n = new Node(c.translation, c.rotation, c.scale);
+        if (i>0) {
+            n.setParent(nodes[i-1]);
+        }
+        nodes.push(n);
+    }
     let textureDiffuse = loadTexture(gl, "assets/container2.png");
     let textureSpecular = loadTexture(gl, "assets/container2_specular.png");
     let buffers = initBuffers(gl);
@@ -93,11 +112,9 @@ async function main() {
     ];
 
     let objectsToDraw = [];
-    for (let c of cubes) {
+    for (let n of nodes) {
         objectsToDraw.push({
-            translation: c.translation,
-            rotation: c.rotation,
-            scale: c.scale,
+            node: n,
             textureDiffuse: textureDiffuse,
             textureSpecular: textureSpecular,
             bufferInfo: bufferInfo_cube,
@@ -150,8 +167,6 @@ async function main() {
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-            //document.getElementById("#controls").height = "88vh";
         }
     }
 
@@ -247,6 +262,8 @@ async function main() {
 
         gl.uniform1i(programInfo.uniforms.samplerDiffuse, 0);
         gl.uniform1i(programInfo.uniforms.samplerSpecular, 1);
+        
+        objectsToDraw[0].node.updateWorldMatrix(); // TODO just assuming index 0 === root for now
         for (let object of objectsToDraw) {
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, object.textureDiffuse);
@@ -255,15 +272,11 @@ async function main() {
             gl.bindTexture(gl.TEXTURE_2D, object.textureSpecular);
 
             setAttributes(object.bufferInfo);
-            
-            let modelMatrix = mat4.create();
-            mat4.translate(modelMatrix, modelMatrix, object.translation);
-            mat4.rotate(modelMatrix, modelMatrix, object.rotation, [0,0,1]);
-            mat4.scale(modelMatrix, modelMatrix, object.scale);
-            gl.uniformMatrix4fv(programInfo.uniforms.model, false, modelMatrix);
+        
+            gl.uniformMatrix4fv(programInfo.uniforms.model, false, object.node.worldMatrix);
 
             let normalMatrix = mat3.create();
-            mat3.fromMat4(normalMatrix, modelMatrix);
+            mat3.fromMat4(normalMatrix, object.node.worldMatrix);
             mat3.invert(normalMatrix, normalMatrix);
             mat3.transpose(normalMatrix, normalMatrix);
             gl.uniformMatrix3fv(programInfo.uniforms.normal, false, normalMatrix);
