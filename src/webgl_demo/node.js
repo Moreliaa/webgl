@@ -1,16 +1,34 @@
+import { degToRad } from "./util.js";
+
 export default class Node {
     constructor(translation, rotation, scale) {
         this.parent = undefined;
         this.children = [];
-        
-        let localMatrix = mat4.create();
         console.log(translation, rotation, scale)
-        mat4.translate(localMatrix, localMatrix, translation);
-        mat4.rotate(localMatrix, localMatrix, rotation, [0,0,1]);
-        mat4.scale(localMatrix, localMatrix, scale);
-        this.localMatrix = localMatrix;
+        this.origTranslation = translation.slice();
+        this.origRotation = rotation;
+        this.origScale = scale.slice();
+        this.translation = translation;
+        this.rotation = rotation;
+        this.scale = scale;
+        
+        this.localMatrix = mat4.create();
         this.worldMatrix = mat4.create();
         this.drawInfo = {};
+    }
+
+    updateLocalMatrix() {
+        let localMatrix = mat4.create();
+        mat4.translate(localMatrix, localMatrix, this.translation);
+        mat4.rotate(localMatrix, localMatrix, this.rotation, [0,0,1]);
+        mat4.scale(localMatrix, localMatrix, this.scale);
+        this.localMatrix = localMatrix;
+    }
+
+    rotate(rotation) {
+        let speed = 30;
+        this.translation[0] = this.origTranslation[1] * Math.sin(degToRad(rotation * speed)) + this.origTranslation[0] * Math.cos(degToRad(rotation * speed));
+        this.translation[1] = this.origTranslation[1] * Math.cos(degToRad(rotation * speed)) + this.origTranslation[0] * Math.sin(degToRad(rotation * speed));
     }
 
     setParent(parent) {
@@ -31,6 +49,7 @@ export default class Node {
     }
 
     updateWorldMatrix() {
+        this.updateLocalMatrix();
         let parentWorldMatrix = this.parent ? this.parent.worldMatrix : undefined;
         if (parentWorldMatrix) {
             mat4.mul(this.worldMatrix, parentWorldMatrix, this.localMatrix);
@@ -42,4 +61,6 @@ export default class Node {
             c.updateWorldMatrix();
         }
     }
+
+    
 }

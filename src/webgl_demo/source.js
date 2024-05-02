@@ -85,13 +85,9 @@ async function main() {
     ];
     let nodes = [];
     let newcubes = [
-        { translation: [0, 5, -3],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
-        { translation: [0, 1, -2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
-        { translation: [0, 1, -2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
-        { translation: [0, 1, -2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
-        { translation: [0, 1, 2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
-        { translation: [0, 1, 2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
-        { translation: [0, 1, 2],    rotation: degToRad(30), scale: [1.0,1.0,1.0] },
+        { translation: [0, 0, -5],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
+        { translation: [0, 4, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
+        { translation: [0, 2, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
     ];
     for (let i = 0; i < newcubes.length; i++) {
         let c = newcubes[i];
@@ -177,6 +173,9 @@ async function main() {
         let delta = now - then;
         then = now;
         rotation = rotation + delta;
+        console.log(objectsToDraw[1]);
+        objectsToDraw[1].node.rotate(rotation);
+        objectsToDraw[2].node.rotate(rotation * 5);
 
         // point light position
         let lightSpeed = 40;
