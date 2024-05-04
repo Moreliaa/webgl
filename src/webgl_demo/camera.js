@@ -7,10 +7,20 @@ export default class Camera {
         this.pos = vec3.fromValues(0.0,8.0,8.0);
         this.up = vec3.fromValues(0.0,1.0,0.0);
         this.front = this.setFront(mouse);
+
+        this.viewMatrix = mat4.create();
+    }
+
+    updateViewMatrix() {
+        let target = vec3.create();
+        vec3.add(target, this.pos, this.front);
+
+        let viewMatrix = mat4.create();
+        mat4.lookAt(viewMatrix, this.pos, target, this.up);
+        this.viewMatrix = viewMatrix;
     }
 
     setFront(mouse) {
-        // Mouse
         let cameraFront = vec3.create();
         let yaw_rad = degToRad(mouse.yaw);
         let pitch_rad = degToRad(mouse.pitch);
@@ -55,6 +65,6 @@ export default class Camera {
             vec3.sub(this.pos, this.pos, offset);
         }
 
-        return { cameraPos: this.pos, cameraUp: this.up, cameraFront: this.front };
+        this.updateViewMatrix();
     }
 }
