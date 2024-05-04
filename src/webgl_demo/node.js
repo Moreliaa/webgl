@@ -62,7 +62,7 @@ export default class Node {
         }
     }
 
-    draw(gl, settings, camera, perspectiveMatrix) {
+    draw(gl, settings, camera, currentPointLightPosition, perspectiveMatrix) {
         if (!this.drawInfo) {
             return;
         }
@@ -82,7 +82,7 @@ export default class Node {
         gl.uniform3fv(programInfo.uniforms.lightAmbient, settings.lightAmbient);
         gl.uniform3fv(programInfo.uniforms.lightDiffuse, settings.lightDiffuse);
         gl.uniform3fv(programInfo.uniforms.lightSpecular, settings.lightSpecular);
-        gl.uniform3fv(programInfo.uniforms.lightPosition, settings.lightPosition);
+        gl.uniform3fv(programInfo.uniforms.lightPosition, currentPointLightPosition);
         gl.uniform1f(programInfo.uniforms.attenuationLinear, settings.attenuationLinear);
         gl.uniform1f(programInfo.uniforms.attenuationSquare, settings.attenuationSquare);
 

@@ -47,11 +47,11 @@ export default class Scene {
         }
     }
 
-    drawScene(gl, settings, camera, perspectiveMatrix) {
+    drawScene(gl, settings, camera, currentPointLightPosition, perspectiveMatrix) {
         this.rootNode.updateWorldMatrix();
 
         for (let node of Object.values(this.nodeMap)) {
-            node.draw(gl, settings, camera, perspectiveMatrix);
+            node.draw(gl, settings, camera, currentPointLightPosition, perspectiveMatrix);
         }
     }
 

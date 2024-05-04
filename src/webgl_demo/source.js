@@ -198,7 +198,7 @@ async function main() {
         }
 
         // Objects
-        scene_solarSystem.drawScene(gl, settings, camera, perspectiveMatrix);
+        scene_solarSystem.drawScene(gl, settings, camera, lightPosCurrent, perspectiveMatrix);
         
         requestAnimationFrame(render);
     }
