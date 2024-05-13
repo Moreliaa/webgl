@@ -5,8 +5,8 @@ import Settings from "./settings.js";
 import Camera from "./camera.js";
 import { initShaderProgram } from "./program.js";
 import { degToRad } from "./util.js";
-import Node from "./node.js";
 import Scene from "./scene.js";
+import { loadGLTF } from "./gltf_loader.js";
 
 main();
 
@@ -18,6 +18,9 @@ async function main() {
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    let whale_gltf = loadGLTF("assets/killer whale/whale.CYCLES.gltf");
+    console.log(whale_gltf);
 
     gl.depthFunc(gl.LESS);
     gl.enable(gl.DEPTH_TEST);
