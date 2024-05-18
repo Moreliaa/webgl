@@ -1,35 +1,27 @@
 import { degToRad } from "./util.js";
 
 export default class Node {
-    constructor(translation, rotation, scale, id = undefined, drawInfo = undefined) {
+    constructor(source, id = undefined, drawInfo = undefined) {
         this.id = id;
+        this.source = source;
         this.parent = undefined;
         this.children = [];
-        this.origTranslation = translation.slice();
-        this.origRotation = rotation;
-        this.origScale = scale.slice();
-        this.translation = translation;
-        this.rotation = rotation;
-        this.scale = scale;
         
         this.localMatrix = mat4.create();
         this.worldMatrix = mat4.create();
         this.drawInfo = drawInfo;
+        this.drawables = [];
     }
 
     updateLocalMatrix() {
-        let localMatrix = mat4.create();
-        mat4.translate(localMatrix, localMatrix, this.translation);
-        mat4.rotate(localMatrix, localMatrix, this.rotation, [0,0,1]);
-        mat4.scale(localMatrix, localMatrix, this.scale);
-        this.localMatrix = localMatrix;
+        this.localMatrix = this.source.getMatrix();
     }
 
-    rotate(rotation) {
+    /*rotate(rotation) {
         let speed = 30;
         this.translation[0] = this.origTranslation[1] * Math.sin(degToRad(rotation * speed)) + this.origTranslation[0] * Math.cos(degToRad(rotation * speed));
         this.translation[1] = this.origTranslation[1] * Math.cos(degToRad(rotation * speed)) + this.origTranslation[0] * Math.sin(degToRad(rotation * speed));
-    }
+    }*/
 
     setParent(parent) {
         if (this.parent) {
@@ -48,6 +40,13 @@ export default class Node {
         this.parent = parent;
     }
 
+    traverse(func) {
+        func(this);
+        for (let child of this.children) {
+            child.traverse(func);
+        }
+    }
+
     updateWorldMatrix() {
         this.updateLocalMatrix();
         let parentWorldMatrix = this.parent ? this.parent.worldMatrix : undefined;
@@ -63,6 +62,9 @@ export default class Node {
     }
 
     draw(gl, settings, camera, currentPointLightPosition, perspectiveMatrix) {
+        if (this.source) {
+            this.source.getMatrix(this.localMatrix);
+        }
         if (!this.drawInfo) {
             return;
         }

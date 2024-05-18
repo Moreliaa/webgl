@@ -6,7 +6,7 @@ import Camera from "./camera.js";
 import { initShaderProgram } from "./program.js";
 import { degToRad } from "./util.js";
 import Scene from "./scene.js";
-import { loadGLTF, setupMeshes } from "./gltf_loader.js";
+import { loadGLTF } from "./gltf_loader.js";
 
 main();
 
@@ -19,16 +19,16 @@ async function main() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    let whale_gltf = await loadGLTF("assets/killer whale/whale.CYCLES.gltf");
-    setupMeshes(gl, whale_gltf);
-    console.log(whale_gltf);
+    let whale_gltf = await loadGLTF(gl, "assets/killer whale/whale.CYCLES.gltf");
+    
 
+    console.log(whale_gltf);
     gl.depthFunc(gl.LESS);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
     let program = await initShaderProgram(gl, "vertex.vs", "fragment.fs");
-    let programInfoA = {
+    let drawableProgramInfo = {
         program: program,
         attributes: {
             position: gl.getAttribLocation(program, "aPosition"),
@@ -96,18 +96,18 @@ async function main() {
     let buffers = initBuffers(gl);
 
     let bufferInfo_cube = [
-        { index: programInfoA.attributes.position, buffer: buffers.vertexBuffer, size: 3 },
-        { index: programInfoA.attributes.normal, buffer: buffers.normalsBuffer, size: 3 },
-        { index: programInfoA.attributes.texture, buffer: buffers.textureBuffer, size: 2 },
+        { index: drawableProgramInfo.attributes.position, buffer: buffers.vertexBuffer, size: 3 },
+        { index: drawableProgramInfo.attributes.normal, buffer: buffers.normalsBuffer, size: 3 },
+        { index: drawableProgramInfo.attributes.texture, buffer: buffers.textureBuffer, size: 2 },
     ];
 
-    let commonDrawInfo = {
-        programInfo: programInfoA,
+    /*let commonDrawInfo = {
+        programInfo: drawableProgramInfo,
         textureDiffuse: textureDiffuse,
         textureSpecular: textureSpecular,
         bufferInfo: bufferInfo_cube,
         numVertices: NUM_VERTICES_CUBE,
-    };
+    };*/
 
     let cubes_solarSystem = [
         { id: "sun", translation: [0, 0, -5],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
@@ -142,8 +142,8 @@ async function main() {
     const settings = new Settings();
     const camera = new Camera(mouse);
 
-    let scene_solarSystem = new Scene();
-    scene_solarSystem.addObjectHierarchy(cubes_solarSystem, commonDrawInfo);
+    //let scene_solarSystem = new Scene();
+    //scene_solarSystem.addObjectHierarchy(cubes_solarSystem, commonDrawInfo);
 
     function checkResize() {
         if (canvas.width !== canvas.clientWidth || canvas.height != canvas.clientHeight) {
@@ -162,8 +162,8 @@ async function main() {
         rotation = rotation + delta;
 
         // scene updates
-        scene_solarSystem.updateNodeRotation("earth", rotation);
-        scene_solarSystem.updateNodeRotation("moon", rotation * 5);
+        //scene_solarSystem.updateNodeRotation("earth", rotation);
+        //scene_solarSystem.updateNodeRotation("moon", rotation * 5);
         
         let lightSpeed = 40;
         let z = settings.lightPosition[2] * Math.cos(degToRad(rotation * lightSpeed));
@@ -201,8 +201,25 @@ async function main() {
             gl.drawArrays(gl.TRIANGLES, 0, 36);
         }
 
+        let commonDrawInfo_nodes = {
+            textureDiffuse: textureDiffuse,
+            textureSpecular: textureSpecular,
+        };
+
+
+        function renderNode(node) {
+            for (let drawable of node.drawables) {
+                drawable.render(gl, drawableProgramInfo, commonDrawInfo_nodes, settings, camera, lightPosCurrent, perspectiveMatrix, node);
+                //drawable.render(node, projection, view, sharedUniforms); // TODO projection etc
+            }
+        }
+        
         // Objects
-        scene_solarSystem.drawScene(gl, settings, camera, lightPosCurrent, perspectiveMatrix);
+        for (let scene of whale_gltf.scenes) {
+            scene.root.updateWorldMatrix();
+            scene.root.traverse(renderNode);
+        }
+        //scene_solarSystem.drawScene(gl, settings, camera, lightPosCurrent, perspectiveMatrix);
         
         requestAnimationFrame(render);
     }
