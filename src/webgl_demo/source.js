@@ -20,9 +20,8 @@ async function main() {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     let whale_gltf = await loadGLTF(gl, "assets/killer whale/whale.CYCLES.gltf");
+    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root));
     
-
-    console.log(whale_gltf);
     gl.depthFunc(gl.LESS);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
@@ -73,7 +72,7 @@ async function main() {
     };
 
     let NUM_VERTICES_CUBE = 36;
-    let cubes = [ // TODO cleanup
+    let cubes = [
         { translation: [0, 0, 0],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
         { translation: [-10, -5, 0], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
         { translation: [10, 5, 0],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
@@ -91,8 +90,8 @@ async function main() {
     
     
 
-    let textureDiffuse = loadTexture(gl, "assets/container2.png");
-    let textureSpecular = loadTexture(gl, "assets/container2_specular.png");
+    let textureDiffuse = loadTexture(gl, "assets/killer whale/whale.png");
+    let textureSpecular = loadTexture(gl, "assets/killer whale/whale.png");
     let buffers = initBuffers(gl);
 
     let bufferInfo_cube = [
@@ -101,19 +100,22 @@ async function main() {
         { index: drawableProgramInfo.attributes.texture, buffer: buffers.textureBuffer, size: 2 },
     ];
 
-    /*let commonDrawInfo = {
+    let commonDrawInfo = {
         programInfo: drawableProgramInfo,
         textureDiffuse: textureDiffuse,
         textureSpecular: textureSpecular,
         bufferInfo: bufferInfo_cube,
         numVertices: NUM_VERTICES_CUBE,
-    };*/
+    };
 
     let cubes_solarSystem = [
         { id: "sun", translation: [0, 0, -5],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
         { id: "earth", translation: [0, 4, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
         { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
     ];
+
+    let scene_solarSystem = new Scene();
+    scene_solarSystem.addObjectHierarchy(cubes_solarSystem, commonDrawInfo);
 
     
 
@@ -141,9 +143,6 @@ async function main() {
     const mouse = new Mouse(canvas);
     const settings = new Settings();
     const camera = new Camera(mouse);
-
-    //let scene_solarSystem = new Scene();
-    //scene_solarSystem.addObjectHierarchy(cubes_solarSystem, commonDrawInfo);
 
     function checkResize() {
         if (canvas.width !== canvas.clientWidth || canvas.height != canvas.clientHeight) {
@@ -205,19 +204,11 @@ async function main() {
             textureDiffuse: textureDiffuse,
             textureSpecular: textureSpecular,
         };
-
-
-        function renderNode(node) {
-            for (let drawable of node.drawables) {
-                drawable.render(gl, drawableProgramInfo, commonDrawInfo_nodes, settings, camera, lightPosCurrent, perspectiveMatrix, node);
-                //drawable.render(node, projection, view, sharedUniforms); // TODO projection etc
-            }
-        }
         
         // Objects
-        for (let scene of whale_gltf.scenes) {
-            scene.root.updateWorldMatrix();
-            scene.root.traverse(renderNode);
+        let scenesToRender = whale_scenes; // TODO setting
+        for (let scene of scenesToRender) {
+            scene.drawScene(gl, drawableProgramInfo, commonDrawInfo_nodes, settings, camera, lightPosCurrent, perspectiveMatrix);
         }
         //scene_solarSystem.drawScene(gl, settings, camera, lightPosCurrent, perspectiveMatrix);
         

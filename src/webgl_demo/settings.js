@@ -27,7 +27,7 @@ export default class Settings {
         this.flashlightDiffuse = vec3.fromValues(0.5,0.8,0.9);
         this.flashlightSpecular = vec3.fromValues(1.0,1.0,1.0);
 
-        this.isTextured = false;
+        this.isTextured = true;
 
         this.shadingStyles_enum = Object.freeze({
             phong: Symbol("phong"),
