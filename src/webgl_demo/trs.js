@@ -5,10 +5,19 @@ export default class TRS {
       this.rotation = quat.fromValues(...rotation);
       this.scale = vec3.fromValues(...scale);
     }
+
+    clone() {
+        return new TRS(this.position, this.rotation, this.scale);
+    }
+
     getMatrix(m) {
       //dst = dst || new Float32Array(16);
       m = m || mat4.create();
       mat4.fromRotationTranslationScale(m, this.rotation, this.position, this.scale);
       return m;
+    }
+
+    rotateZ(rotation) {
+        quat.rotateZ(this.rotation, this.rotation, rotation);
     }
   }

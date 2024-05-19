@@ -5,7 +5,7 @@ export default class MeshRenderer {
         this.mesh = mesh;
     }
 
-    render(gl, programInfo, commonDrawInfo_nodes, settings, camera, currentPointLightPosition, perspectiveMatrix, node) {
+    render(gl, programInfo, commonDrawInfo, settings, camera, currentPointLightPosition, perspectiveMatrix, node) {
         const { mesh } = this;
 
         gl.useProgram(programInfo.program);
@@ -49,15 +49,15 @@ export default class MeshRenderer {
         gl.uniform1i(programInfo.uniforms.samplerSpecular, 1);
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, commonDrawInfo_nodes.textureDiffuse);
+        gl.bindTexture(gl.TEXTURE_2D, commonDrawInfo.textureDiffuse);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, commonDrawInfo_nodes.textureSpecular);
+        gl.bindTexture(gl.TEXTURE_2D, commonDrawInfo.textureSpecular);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         for (const primitive of mesh.primitives) {
- setAttributes(gl, programInfo, primitive.bufferInfo);
+            setAttributes(gl, programInfo, primitive.bufferInfo);
             let hasIndices = primitive.bufferInfo.indices !== undefined;
             if (hasIndices) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, primitive.bufferInfo.indices);

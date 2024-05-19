@@ -1,25 +1,33 @@
 import Node from "./node.js";
+import TRS from "./trs.js";
 
 export default class Scene {
-    constructor(rootNode = undefined) {
-        this.rootNode = rootNode || new Node([0,0,0], 0, [1.0,1.0,1.0]);
+    constructor(rootNode = undefined, commonDrawInfo) {
+        this.rootNode = rootNode || new Node(new TRS(), 0);
+        this.commonDrawInfo = commonDrawInfo; // for textureDiffuse & textureSpecular
     }
 
-    updateNodeRotation(nodeId, rotation) {
+    updateNodeRotationZ(nodeId, rotation) {
         function rotateNode(node) {
             if (node.id === nodeId) {
-                node.rotate(rotation);
+                node.rotateZ(rotation);
             }
         }
 
         this.rootNode.traverse(rotateNode);
     }
 
-    addObjectHierarchy(objects, drawInfo) {
+    addObjectHierarchy(objects, objectRoot) {
         let nodes = [];
+        console.log("objectRoot", objectRoot)
         for (let i = 0; i < objects.length; i++) {
             let c = objects[i];
-            let n = new Node(c.translation, c.rotation, c.scale, c.id, drawInfo);
+            let rotation_quat = quat.create();
+            quat.rotateZ(rotation_quat, rotation_quat, c.rotation);
+            let source = new TRS(c.translation, rotation_quat, c.scale);
+            let n = objectRoot.clone();
+            n.source = source;
+            console.log(n);
             if (i === 0) {
                 n.setParent(this.rootNode);
             } else {
@@ -27,12 +35,15 @@ export default class Scene {
             }
             nodes.push(n);
         }
+
+        console.log("hierarchy", this.rootNode);
     }
 
-    drawScene(gl, drawableProgramInfo, textureInfo, settings, camera, lightPosCurrent, perspectiveMatrix) {
+    drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix) {
+        let commonDrawInfo = this.commonDrawInfo;
         function renderNode(node) {
             for (let drawable of node.drawables) {
-                drawable.render(gl, drawableProgramInfo, textureInfo, settings, camera, lightPosCurrent, perspectiveMatrix, node);
+                drawable.render(gl, drawableProgramInfo, commonDrawInfo, settings, camera, lightPosCurrent, perspectiveMatrix, node);
             }
         }
 

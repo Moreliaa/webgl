@@ -13,15 +13,25 @@ export default class Node {
         this.drawables = [];
     }
 
+    clone() {
+        let n = new Node(this.source.clone(), undefined, this.drawInfo);
+        for (let child of this.children) {
+            let c = child.clone();
+            n.children.push(c);
+        }
+        n.drawables = this.drawables;
+        return n;
+    }
+
     updateLocalMatrix() {
         this.localMatrix = this.source.getMatrix();
     }
 
-    /*rotate(rotation) {
+    rotateZ(rotation) {
         let speed = 30;
-        this.translation[0] = this.origTranslation[1] * Math.sin(degToRad(rotation * speed)) + this.origTranslation[0] * Math.cos(degToRad(rotation * speed));
-        this.translation[1] = this.origTranslation[1] * Math.cos(degToRad(rotation * speed)) + this.origTranslation[0] * Math.sin(degToRad(rotation * speed));
-    }*/
+        let rotation_rad = degToRad(rotation * speed);
+        this.source.rotateZ(rotation_rad);
+    }
 
     setParent(parent) {
         if (this.parent) {

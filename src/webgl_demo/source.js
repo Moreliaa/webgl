@@ -20,7 +20,11 @@ async function main() {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     let whale_gltf = await loadGLTF(gl, "assets/killer whale/whale.CYCLES.gltf");
-    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root));
+    let commonDrawInfo_whale = {
+        textureDiffuse: loadTexture(gl, "assets/killer whale/whale.png"),
+        textureSpecular: loadTexture(gl, "assets/killer whale/whale.png"),
+    };
+    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root, commonDrawInfo_whale));
     
     gl.depthFunc(gl.LESS);
     gl.enable(gl.DEPTH_TEST);
@@ -90,8 +94,7 @@ async function main() {
     
     
 
-    let textureDiffuse = loadTexture(gl, "assets/killer whale/whale.png");
-    let textureSpecular = loadTexture(gl, "assets/killer whale/whale.png");
+    
     let buffers = initBuffers(gl);
 
     let bufferInfo_cube = [
@@ -100,10 +103,10 @@ async function main() {
         { index: drawableProgramInfo.attributes.texture, buffer: buffers.textureBuffer, size: 2 },
     ];
 
-    let commonDrawInfo = {
+    let commonDrawInfo_cubes = {
         programInfo: drawableProgramInfo,
-        textureDiffuse: textureDiffuse,
-        textureSpecular: textureSpecular,
+        textureDiffuse: loadTexture(gl, "assets/container2.png"),
+        textureSpecular: loadTexture(gl, "assets/container2_specular.png"),
         bufferInfo: bufferInfo_cube,
         numVertices: NUM_VERTICES_CUBE,
     };
@@ -114,8 +117,18 @@ async function main() {
         { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
     ];
 
-    let scene_solarSystem = new Scene();
-    scene_solarSystem.addObjectHierarchy(cubes_solarSystem, commonDrawInfo);
+
+    let cube_gltf = await loadGLTF(gl, "/assets/cube/cube.gltf");
+    console.log(cube_gltf)
+
+    let scenes_solarSystem = [new Scene(undefined, commonDrawInfo_cubes)];
+    scenes_solarSystem.forEach(scene => {
+        let cubeRoot = cube_gltf.scenes[cube_gltf.scene].root;
+        scene.addObjectHierarchy(cubes_solarSystem, cubeRoot);
+    })
+
+    let scene_boxes = new Scene(undefined, commonDrawInfo_cubes);
+    //scene_boxes.addObjectHierarchy(cubes, commonDrawInfo_cubes);
 
     
 
@@ -161,9 +174,11 @@ async function main() {
         rotation = rotation + delta;
 
         // scene updates
-        //scene_solarSystem.updateNodeRotation("earth", rotation);
-        //scene_solarSystem.updateNodeRotation("moon", rotation * 5);
-        
+        scenes_solarSystem.forEach(scene => {
+            scene.updateNodeRotationZ("earth", rotation);
+            scene.updateNodeRotationZ("moon", rotation * 5);
+        });
+    
         let lightSpeed = 40;
         let z = settings.lightPosition[2] * Math.cos(degToRad(rotation * lightSpeed));
         let y = settings.lightPosition[1] * Math.sin(degToRad(rotation * lightSpeed));
@@ -199,19 +214,27 @@ async function main() {
             gl.uniformMatrix4fv(programInfo_pointLight.uniforms.model, false, modelMatrix);
             gl.drawArrays(gl.TRIANGLES, 0, 36);
         }
-
-        let commonDrawInfo_nodes = {
-            textureDiffuse: textureDiffuse,
-            textureSpecular: textureSpecular,
-        };
         
         // Objects
-        let scenesToRender = whale_scenes; // TODO setting
-        for (let scene of scenesToRender) {
-            scene.drawScene(gl, drawableProgramInfo, commonDrawInfo_nodes, settings, camera, lightPosCurrent, perspectiveMatrix);
+        let scenesToRender = [];
+        switch (settings.scene) {
+            case settings.scenes_enum.whale:
+                scenesToRender = whale_scenes;
+                break;
+            case settings.scenes_enum.boxes:
+                scenesToRender = [scene_boxes];
+                break;
+            case settings.scenes_enum.solar:
+                scenesToRender = scenes_solarSystem;
+                break;
+            default:
+                console.error("unknown scene " + settings.scene);
         }
-        //scene_solarSystem.drawScene(gl, settings, camera, lightPosCurrent, perspectiveMatrix);
-        
+
+        for (let scene of scenesToRender) {
+            scene.drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix);
+        }
+
         requestAnimationFrame(render);
     }
 

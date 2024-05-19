@@ -35,6 +35,13 @@ export default class Settings {
         });
         this.shadingStyle = this.shadingStyles_enum.blinnphong;
 
+        this.scenes_enum = Object.freeze({
+            whale: Symbol("whale"),
+            boxes: Symbol("boxes"),
+            solar: Symbol("solar"),
+        });
+        this.scene = this.scenes_enum.whale;
+
 
         document.getElementById("ctrl_flashlightActive").onchange = (event) => {
             this.isFlashlight = event.target.checked;
@@ -70,6 +77,18 @@ export default class Settings {
 
         document.getElementById("ctrl_phongShading").onchange = (event) => {
             this.shadingStyle = this.shadingStyles_enum.phong;
+        };
+
+        document.getElementById("ctrl_scene_whale").onchange = (event) => {
+            this.scene = this.scenes_enum.whale;
+        };
+
+        document.getElementById("ctrl_scene_boxes").onchange = (event) => {
+            this.scene = this.scenes_enum.boxes;
+        };
+
+        document.getElementById("ctrl_scene_solar").onchange = (event) => {
+            this.scene = this.scenes_enum.solar;
         };
 
         document.getElementById("ctrl_rotatingLight").onchange = (event) => {
