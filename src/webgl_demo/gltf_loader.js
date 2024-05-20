@@ -2,7 +2,7 @@ import Node from "./node.js";
 import TRS from "./trs.js";
 import MeshRenderer from "./mesh_renderer.js";
 
-export async function loadGLTF(gl, path) {
+export async function loadGLTF(gl, path, textureInfo = undefined) {
     let gltf = await loadJSON(path);
 
     let baseURL = new URL(path, location.href);
@@ -17,7 +17,7 @@ export async function loadGLTF(gl, path) {
     gltf.nodes = gltf.nodes.map((n) => {
         const { name, skin, mesh, translation, rotation, scale } = n;
         const trs = new TRS(translation, rotation, scale);
-        const node = new Node(trs, name);
+        const node = new Node(trs, name, textureInfo);
         const realMesh = gltf.meshes[mesh];
         if (realMesh) {
             node.drawables.push(new MeshRenderer(realMesh));

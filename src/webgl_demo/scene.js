@@ -2,9 +2,8 @@ import Node from "./node.js";
 import TRS from "./trs.js";
 
 export default class Scene {
-    constructor(rootNode = undefined, commonDrawInfo) {
+    constructor(rootNode = undefined) {
         this.rootNode = rootNode || new Node(new TRS(), 0);
-        this.commonDrawInfo = commonDrawInfo; // for textureDiffuse & textureSpecular
     }
 
     updateNodeRotationZ(nodeId, rotation) {
@@ -44,10 +43,9 @@ export default class Scene {
     }
 
     drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix) {
-        let commonDrawInfo = this.commonDrawInfo;
         function renderNode(node) {
             for (let drawable of node.drawables) {
-                drawable.render(gl, drawableProgramInfo, commonDrawInfo, settings, camera, lightPosCurrent, perspectiveMatrix, node);
+                drawable.render(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix, node);
             }
         }
 
@@ -64,5 +62,10 @@ function buildNodeFromObjectData(object, node) {
     let n = node.clone();
     n.id = object.id; // may be undefined
     n.source = source;
+
+    function setTextureInfo(node) {
+        node.textureInfo = object.textureInfo;
+    }
+    n.traverse(setTextureInfo);
     return n;
 }

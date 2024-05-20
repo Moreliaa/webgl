@@ -68,56 +68,68 @@ async function main() {
         }
     };
 
-    let whale_gltf = await loadGLTF(gl, "assets/killer whale/whale.CYCLES.gltf");
-    let commonDrawInfo_whale = {
+    let textureInfo_whale = {
         textureDiffuse: loadTexture(gl, "assets/killer whale/whale.png"),
         textureSpecular: loadTexture(gl, "assets/killer whale/whale.png"),
     };
-    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root, commonDrawInfo_whale));
+    let whale_gltf = await loadGLTF(gl, "assets/killer whale/whale.CYCLES.gltf", textureInfo_whale);
+    
+    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root));
 
     let cube_scale = [2.0,2.0,2.0];
-    let cubes = [
-        { translation: [0, 0, 0],    rotation: degToRad(0), scale:          cube_scale },
-        { translation: [-10, -5, 0], rotation: degToRad(40) , scale:        cube_scale },
-        { translation: [10, 5, 0],   rotation: degToRad(70) , scale:        cube_scale },
-        { translation: [-23, 0, -2], rotation: degToRad(100), scale:        cube_scale },
-        { translation: [0, -13, -12],  rotation: degToRad(130), scale:      cube_scale },
-        { translation: [-8, 5, -13.7],    rotation: degToRad(0) , scale:    cube_scale },
-        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) , scale:     cube_scale },
-        { translation: [-12, -8, 8.2],   rotation: degToRad(70) , scale:    cube_scale },
-        { translation: [14, -14, -15.2], rotation: degToRad(100), scale:    cube_scale },
-        { translation: [15, -9, -25],  rotation: degToRad(130), scale:      cube_scale },
-        { translation: [-8, 5, -30.7],    rotation: degToRad(170) , scale:  cube_scale },
-        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) , scale:   cube_scale },
-        { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: cube_scale }, 
-    ];
 
-    let spheres_solarSystem = [ // scaling also depends on parent node
-        { id: "sun", translation: [0, 0, -5],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
-        { id: "earth", translation: [0, 4, 0],    rotation: degToRad(0), scale: [0.5,0.5,0.5] },
-        { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [0.3,0.3,0.3] },
-    ];
-
-    let commonDrawInfo_cubes = {
+    let textureInfo_cubes = {
         textureDiffuse: loadTexture(gl, "assets/container2.png"),
         textureSpecular: loadTexture(gl, "assets/container2_specular.png"),
     };
 
-    let commonDrawInfo_spheres = {
-        textureDiffuse: loadTexture(gl, "assets/moon.png"),
-        textureSpecular: undefined, //loadTexture(gl, "assets/moon.png"),
+    let cubes = [
+        { translation: [0, 0, 0],    rotation: degToRad(0), scale:          cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [-10, -5, 0], rotation: degToRad(40) , scale:        cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [10, 5, 0],   rotation: degToRad(70) , scale:        cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [-23, 0, -2], rotation: degToRad(100), scale:        cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [0, -13, -12],  rotation: degToRad(130), scale:      cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [-8, 5, -13.7],    rotation: degToRad(0) , scale:    cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) , scale:     cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [-12, -8, 8.2],   rotation: degToRad(70) , scale:    cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [14, -14, -15.2], rotation: degToRad(100), scale:    cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [15, -9, -25],  rotation: degToRad(130), scale:      cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [-8, 5, -30.7],    rotation: degToRad(170) , scale:  cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) , scale:   cube_scale, textureInfo: textureInfo_cubes },
+        { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: cube_scale, textureInfo: textureInfo_cubes }, 
+    ];
+
+    // intentionally no specular for these
+    let textureInfo_sun = {
+        textureDiffuse: loadTexture(gl, "assets/sun.jpg"),
     };
+
+    let textureInfo_earth = {
+        textureDiffuse: loadTexture(gl, "assets/earth.jpg"),
+    };
+
+    let textureInfo_moon = {
+        textureDiffuse: loadTexture(gl, "assets/moon.png"),
+    };
+
+    let spheres_solarSystem = [ // scaling also depends on parent node
+        { id: "sun", translation: [0, 0, -5],    rotation: degToRad(0), scale: [5.0,5.0,5.0], textureInfo: textureInfo_sun },
+        { id: "earth", translation: [0, 4, 0],    rotation: degToRad(0), scale: [0.5,0.5,0.5], textureInfo: textureInfo_earth },
+        { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [0.3,0.3,0.3], textureInfo: textureInfo_moon },
+    ];
+
+   
 
     let cube_gltf = await loadGLTF(gl, "/assets/cube/cube.gltf");
     let sphere_gltf = await loadGLTF(gl, "/assets/sphere/sphere.gltf");
 
-    let scenes_solarSystem = [new Scene(undefined, commonDrawInfo_spheres)];
+    let scenes_solarSystem = [new Scene()];
     scenes_solarSystem.forEach(scene => {
         let sphereRoot = sphere_gltf.scenes[sphere_gltf.scene].root;
         scene.addObjectHierarchy(spheres_solarSystem, sphereRoot);
     });
 
-    let scenes_boxes = [new Scene(undefined, commonDrawInfo_cubes)];
+    let scenes_boxes = [new Scene()];
     scenes_boxes.forEach(scene => {
         let cubeRoot = cube_gltf.scenes[cube_gltf.scene].root;
         scene.addObjectsToRoot(cubes, cubeRoot);
@@ -168,8 +180,8 @@ async function main() {
 
         // scene updates
         scenes_solarSystem.forEach(scene => {
-            scene.updateNodeRotationZ("earth", rotation * 50);
-            scene.updateNodeRotationZ("moon", rotation * 100);
+            scene.updateNodeRotationZ("earth", rotation);
+            scene.updateNodeRotationZ("moon", rotation * 5 );
         });
     
         let lightSpeed = 40;

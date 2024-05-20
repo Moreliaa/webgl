@@ -23,8 +23,8 @@ export default class TRS {
     }
 
     rotateZ(rotation) {
-        this.position[0] = this.origPosition[1] * Math.sin(degToRad(rotation)) + this.origPosition[0] * Math.cos(degToRad(rotation));
-        this.position[1] = this.origPosition[1] * Math.cos(degToRad(rotation)) + this.origPosition[0] * Math.sin(degToRad(rotation));
+        this.position[0] = this.origPosition[1] * Math.sin(rotation) + this.origPosition[0] * Math.cos(rotation);
+        this.position[1] = this.origPosition[1] * Math.cos(rotation) + this.origPosition[0] * Math.sin(rotation);
         quat.rotateZ(this.rotation, this.origRotation, rotation * 0.1);
     }
   }
