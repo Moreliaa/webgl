@@ -113,7 +113,7 @@ async function main() {
 
     let cubes_solarSystem = [
         { id: "sun", translation: [0, 0, -5],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
-        { id: "earth", translation: [0, 4, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
+        { id: "earth", translation: [0, 8, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
         { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
     ];
 
@@ -127,8 +127,11 @@ async function main() {
         scene.addObjectHierarchy(cubes_solarSystem, cubeRoot);
     })
 
-    let scene_boxes = new Scene(undefined, commonDrawInfo_cubes);
-    //scene_boxes.addObjectHierarchy(cubes, commonDrawInfo_cubes);
+    let scenes_boxes = [new Scene(undefined, commonDrawInfo_cubes)];
+    scenes_boxes.forEach(scene => {
+        let cubeRoot = cube_gltf.scenes[cube_gltf.scene].root;
+        scene.addObjectHierarchy(cubes, cubeRoot);
+    });
 
     
 
@@ -222,7 +225,7 @@ async function main() {
                 scenesToRender = whale_scenes;
                 break;
             case settings.scenes_enum.boxes:
-                scenesToRender = [scene_boxes];
+                scenesToRender = scenes_boxes;
                 break;
             case settings.scenes_enum.solar:
                 scenesToRender = scenes_solarSystem;
