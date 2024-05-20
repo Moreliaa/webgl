@@ -120,8 +120,8 @@ async function main() {
 
    
 
-    let cube_gltf = await loadGLTF(gl, "/assets/cube/cube.gltf");
-    let sphere_gltf = await loadGLTF(gl, "/assets/sphere/sphere.gltf");
+    let cube_gltf = await loadGLTF(gl, "assets/cube/cube.gltf");
+    let sphere_gltf = await loadGLTF(gl, "assets/sphere/sphere.gltf");
 
     let scenes_solarSystem = [new Scene()];
     scenes_solarSystem.forEach(scene => {
