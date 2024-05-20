@@ -1,6 +1,11 @@
+import { degToRad } from "./util.js";
+
 export default class TRS {
     constructor(position = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
     // quaternion rotation
+      this.origPosition = vec3.fromValues(...position);
+      this.origRotation = quat.fromValues(...rotation);
+      this.origScale = vec3.fromValues(...scale);
       this.position = vec3.fromValues(...position);
       this.rotation = quat.fromValues(...rotation);
       this.scale = vec3.fromValues(...scale);
@@ -18,6 +23,8 @@ export default class TRS {
     }
 
     rotateZ(rotation) {
-        quat.rotateZ(this.rotation, this.rotation, rotation);
+        this.position[0] = this.origPosition[1] * Math.sin(degToRad(rotation)) + this.origPosition[0] * Math.cos(degToRad(rotation));
+        this.position[1] = this.origPosition[1] * Math.cos(degToRad(rotation)) + this.origPosition[0] * Math.sin(degToRad(rotation));
+        quat.rotateZ(this.rotation, this.origRotation, rotation * 0.1);
     }
   }

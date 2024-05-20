@@ -62,6 +62,7 @@ function buildNodeFromObjectData(object, node) {
     quat.rotateZ(rotation_quat, rotation_quat, object.rotation);
     let source = new TRS(object.translation, rotation_quat, object.scale);
     let n = node.clone();
+    n.id = object.id; // may be undefined
     n.source = source;
     return n;
 }

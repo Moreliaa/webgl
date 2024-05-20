@@ -6,7 +6,7 @@ export default class Settings {
         this.specularColor = vec3.fromValues(1.0,1.0,1.0);
         this.shininess = 32.0;
 
-        this.lightPosition = vec3.fromValues(0.0,4.0,4.0);
+        this.lightPosition = vec3.fromValues(0.0,0.0,12.0);
         this.attenuationLinear = 0.014;
         this.attenuationSquare = 0.007;
         this.lightAmbient = vec3.fromValues(0.3,0.3,0.3);

@@ -92,10 +92,10 @@ async function main() {
         { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: cube_scale }, 
     ];
 
-    let cubes_solarSystem = [
+    let spheres_solarSystem = [ // scaling also depends on parent node
         { id: "sun", translation: [0, 0, -5],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
-        { id: "earth", translation: [0, 8, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
-        { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
+        { id: "earth", translation: [0, 4, 0],    rotation: degToRad(0), scale: [0.5,0.5,0.5] },
+        { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [0.3,0.3,0.3] },
     ];
 
     let commonDrawInfo_cubes = {
@@ -103,20 +103,19 @@ async function main() {
         textureSpecular: loadTexture(gl, "assets/container2_specular.png"),
     };
 
+    let commonDrawInfo_spheres = {
+        textureDiffuse: loadTexture(gl, "assets/moon.png"),
+        textureSpecular: undefined, //loadTexture(gl, "assets/moon.png"),
+    };
+
     let cube_gltf = await loadGLTF(gl, "/assets/cube/cube.gltf");
+    let sphere_gltf = await loadGLTF(gl, "/assets/sphere/sphere.gltf");
 
-    let scenes_solarSystem = [new Scene(undefined, commonDrawInfo_cubes)];
+    let scenes_solarSystem = [new Scene(undefined, commonDrawInfo_spheres)];
     scenes_solarSystem.forEach(scene => {
-        let cubeRoot = cube_gltf.scenes[cube_gltf.scene].root;
-        /*let clonedCube = cubeRoot.clone();
-        cubeRoot.setParent(scene.rootNode);
-        clonedCube.setParent(cubeRoot);*/
-        scene.addObjectHierarchy(cubes_solarSystem, cubeRoot);
+        let sphereRoot = sphere_gltf.scenes[sphere_gltf.scene].root;
+        scene.addObjectHierarchy(spheres_solarSystem, sphereRoot);
     });
-
-    scenes_solarSystem[0].rootNode.updateWorldMatrix();
-
-    console.log("scene", scenes_solarSystem[0]);
 
     let scenes_boxes = [new Scene(undefined, commonDrawInfo_cubes)];
     scenes_boxes.forEach(scene => {
@@ -124,7 +123,7 @@ async function main() {
         scene.addObjectsToRoot(cubes, cubeRoot);
     });
     
-    let buffers = initBuffers(gl);
+    let buffers = initBuffers(gl); // used only for point light now
 
     let program_pointLight = await initShaderProgram(gl, "vertex_point-light.vs", "fragment_point-light.fs");
     let programInfo_pointLight = {
@@ -169,13 +168,13 @@ async function main() {
 
         // scene updates
         scenes_solarSystem.forEach(scene => {
-            scene.updateNodeRotationZ("earth", rotation);
-            scene.updateNodeRotationZ("moon", rotation * 5);
+            scene.updateNodeRotationZ("earth", rotation * 50);
+            scene.updateNodeRotationZ("moon", rotation * 100);
         });
     
         let lightSpeed = 40;
-        let z = settings.lightPosition[2] * Math.cos(degToRad(rotation * lightSpeed));
-        let y = settings.lightPosition[1] * Math.sin(degToRad(rotation * lightSpeed));
+        let z = settings.lightPosition[2] * Math.cos(degToRad(rotation * lightSpeed)) + settings.lightPosition[1] * Math.sin(degToRad(rotation * lightSpeed));
+        let y = settings.lightPosition[1] * Math.cos(degToRad(rotation * lightSpeed)) + settings.lightPosition[2] * Math.sin(degToRad(rotation * lightSpeed));
         let lightPosCurrent = settings.lightMovement ? vec3.fromValues(settings.lightPosition[0], y, z) : settings.lightPosition;
 
         camera.handleInput(mouse, keyboard, delta);
