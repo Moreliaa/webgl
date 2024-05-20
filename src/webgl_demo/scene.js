@@ -17,17 +17,23 @@ export default class Scene {
         this.rootNode.traverse(rotateNode);
     }
 
-    addObjectHierarchy(objects, objectRoot) {
-        let nodes = [];
-        console.log("objectRoot", objectRoot)
+    /**
+     * Add nodes where all of them depend on the root node.
+     */
+    addObjectsToRoot(objects, node) {
         for (let i = 0; i < objects.length; i++) {
-            let c = objects[i];
-            let rotation_quat = quat.create();
-            quat.rotateZ(rotation_quat, rotation_quat, c.rotation);
-            let source = new TRS(c.translation, rotation_quat, c.scale);
-            let n = objectRoot.clone();
-            n.source = source;
-            console.log(n);
+            let n = buildNodeFromObjectData(objects[i], node);
+            n.setParent(this.rootNode);
+        }
+    }
+
+    /**
+     * Add node with each node being a child of the prior node. 
+     */
+    addObjectHierarchy(objects, node) {
+        let nodes = [];
+        for (let i = 0; i < objects.length; i++) {
+            let n = buildNodeFromObjectData(objects[i], node);
             if (i === 0) {
                 n.setParent(this.rootNode);
             } else {
@@ -35,8 +41,6 @@ export default class Scene {
             }
             nodes.push(n);
         }
-
-        console.log("hierarchy", this.rootNode);
     }
 
     drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix) {
@@ -53,3 +57,11 @@ export default class Scene {
 
 }
 
+function buildNodeFromObjectData(object, node) {
+    let rotation_quat = quat.create();
+    quat.rotateZ(rotation_quat, rotation_quat, object.rotation);
+    let source = new TRS(object.translation, rotation_quat, object.scale);
+    let n = node.clone();
+    n.source = source;
+    return n;
+}

@@ -17,7 +17,7 @@ export default class Node {
         let n = new Node(this.source.clone(), undefined, this.drawInfo);
         for (let child of this.children) {
             let c = child.clone();
-            n.children.push(c);
+            c.setParent(n);
         }
         n.drawables = this.drawables;
         return n;

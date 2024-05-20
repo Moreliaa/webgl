@@ -18,13 +18,6 @@ async function main() {
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-
-    let whale_gltf = await loadGLTF(gl, "assets/killer whale/whale.CYCLES.gltf");
-    let commonDrawInfo_whale = {
-        textureDiffuse: loadTexture(gl, "assets/killer whale/whale.png"),
-        textureSpecular: loadTexture(gl, "assets/killer whale/whale.png"),
-    };
-    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root, commonDrawInfo_whale));
     
     gl.depthFunc(gl.LESS);
     gl.enable(gl.DEPTH_TEST);
@@ -75,41 +68,29 @@ async function main() {
         }
     };
 
-    let NUM_VERTICES_CUBE = 36;
-    let cubes = [
-        { translation: [0, 0, 0],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
-        { translation: [-10, -5, 0], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
-        { translation: [10, 5, 0],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
-        { translation: [-23, 0, -2], rotation: degToRad(100), scale: [5.0,5.0,5.0] },
-        { translation: [0, -13, -12],  rotation: degToRad(130), scale: [5.0,5.0,5.0] },
-        { translation: [-8, 5, -13.7],    rotation: degToRad(0) , scale: [5.0,5.0,5.0] },
-        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) , scale: [5.0,5.0,5.0] },
-        { translation: [-12, -8, 8.2],   rotation: degToRad(70) , scale: [5.0,5.0,5.0] },
-        { translation: [14, -14, -15.2], rotation: degToRad(100), scale: [5.0,5.0,5.0] },
-        { translation: [15, -9, -25],  rotation: degToRad(130), scale: [5.0,5.0,5.0] },
-        { translation: [-8, 5, -30.7],    rotation: degToRad(170) , scale: [5.0,5.0,5.0] },
-        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) , scale: [5.0,5.0,5.0] },
-        { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: [5.0,5.0,5.0] }, 
-    ];
-    
-    
-
-    
-    let buffers = initBuffers(gl);
-
-    let bufferInfo_cube = [
-        { index: drawableProgramInfo.attributes.position, buffer: buffers.vertexBuffer, size: 3 },
-        { index: drawableProgramInfo.attributes.normal, buffer: buffers.normalsBuffer, size: 3 },
-        { index: drawableProgramInfo.attributes.texture, buffer: buffers.textureBuffer, size: 2 },
-    ];
-
-    let commonDrawInfo_cubes = {
-        programInfo: drawableProgramInfo,
-        textureDiffuse: loadTexture(gl, "assets/container2.png"),
-        textureSpecular: loadTexture(gl, "assets/container2_specular.png"),
-        bufferInfo: bufferInfo_cube,
-        numVertices: NUM_VERTICES_CUBE,
+    let whale_gltf = await loadGLTF(gl, "assets/killer whale/whale.CYCLES.gltf");
+    let commonDrawInfo_whale = {
+        textureDiffuse: loadTexture(gl, "assets/killer whale/whale.png"),
+        textureSpecular: loadTexture(gl, "assets/killer whale/whale.png"),
     };
+    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root, commonDrawInfo_whale));
+
+    let cube_scale = [2.0,2.0,2.0];
+    let cubes = [
+        { translation: [0, 0, 0],    rotation: degToRad(0), scale:          cube_scale },
+        { translation: [-10, -5, 0], rotation: degToRad(40) , scale:        cube_scale },
+        { translation: [10, 5, 0],   rotation: degToRad(70) , scale:        cube_scale },
+        { translation: [-23, 0, -2], rotation: degToRad(100), scale:        cube_scale },
+        { translation: [0, -13, -12],  rotation: degToRad(130), scale:      cube_scale },
+        { translation: [-8, 5, -13.7],    rotation: degToRad(0) , scale:    cube_scale },
+        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) , scale:     cube_scale },
+        { translation: [-12, -8, 8.2],   rotation: degToRad(70) , scale:    cube_scale },
+        { translation: [14, -14, -15.2], rotation: degToRad(100), scale:    cube_scale },
+        { translation: [15, -9, -25],  rotation: degToRad(130), scale:      cube_scale },
+        { translation: [-8, 5, -30.7],    rotation: degToRad(170) , scale:  cube_scale },
+        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) , scale:   cube_scale },
+        { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: cube_scale }, 
+    ];
 
     let cubes_solarSystem = [
         { id: "sun", translation: [0, 0, -5],    rotation: degToRad(0), scale: [5.0,5.0,5.0] },
@@ -117,23 +98,33 @@ async function main() {
         { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [1.0,1.0,1.0] },
     ];
 
+    let commonDrawInfo_cubes = {
+        textureDiffuse: loadTexture(gl, "assets/container2.png"),
+        textureSpecular: loadTexture(gl, "assets/container2_specular.png"),
+    };
 
     let cube_gltf = await loadGLTF(gl, "/assets/cube/cube.gltf");
-    console.log(cube_gltf)
 
     let scenes_solarSystem = [new Scene(undefined, commonDrawInfo_cubes)];
     scenes_solarSystem.forEach(scene => {
         let cubeRoot = cube_gltf.scenes[cube_gltf.scene].root;
+        /*let clonedCube = cubeRoot.clone();
+        cubeRoot.setParent(scene.rootNode);
+        clonedCube.setParent(cubeRoot);*/
         scene.addObjectHierarchy(cubes_solarSystem, cubeRoot);
-    })
+    });
+
+    scenes_solarSystem[0].rootNode.updateWorldMatrix();
+
+    console.log("scene", scenes_solarSystem[0]);
 
     let scenes_boxes = [new Scene(undefined, commonDrawInfo_cubes)];
     scenes_boxes.forEach(scene => {
         let cubeRoot = cube_gltf.scenes[cube_gltf.scene].root;
-        scene.addObjectHierarchy(cubes, cubeRoot);
+        scene.addObjectsToRoot(cubes, cubeRoot);
     });
-
     
+    let buffers = initBuffers(gl);
 
     let program_pointLight = await initShaderProgram(gl, "vertex_point-light.vs", "fragment_point-light.fs");
     let programInfo_pointLight = {
