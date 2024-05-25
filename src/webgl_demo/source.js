@@ -74,7 +74,13 @@ async function main() {
     };
     let whale_gltf = await loadGLTF(gl, "assets/killer whale/whale.CYCLES.gltf", textureInfo_whale);
     
+    whale_gltf.scenes.forEach(scene => {
+        scene.root.translate([0,9,0])
+        scene.root.rotateSourceX(90);
+        scene.root.rotateSourceZ(90);
+    });
     let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root));
+    console.log(whale_gltf.scenes[0].root)
 
     let cube_scale = [2.0,2.0,2.0];
 

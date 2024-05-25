@@ -13,6 +13,25 @@ export default class Node {
         this.textureInfo = textureInfo;
     }
 
+    translate(translation) {
+        this.source.translate(translation);
+    }
+
+    rotateSourceX(angleDeg) {
+        let angleRad = degToRad(angleDeg);
+        this.source.rotateOrigX(angleRad);
+    }
+
+    rotateSourceY(angleDeg) {
+        let angleRad = degToRad(angleDeg);
+        this.source.rotateOrigY(angleRad);
+    }
+
+    rotateSourceZ(angleDeg) {
+        let angleRad = degToRad(angleDeg);
+        this.source.rotateOrigZ(angleRad);
+    }
+
     clone() {
         let n = new Node(this.source.clone(), undefined);
         for (let child of this.children) {
