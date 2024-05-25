@@ -1,7 +1,11 @@
-varying highp vec3 vPosition;
-varying highp vec3 vNormal;
+# version 300 es
 
-varying highp vec2 vTextureCoord;
+in highp vec3 vPosition;
+in highp vec3 vNormal;
+
+in highp vec2 vTextureCoord;
+
+out highp vec4 fragColor;
 
 uniform sampler2D uSamplerDiffuse;
 uniform sampler2D uSamplerSpecular;
@@ -150,8 +154,8 @@ void main() {
     highp vec3 texColorDiffuse = vec3(1.0,1.0,1.0);
     highp vec3 texColorSpecular = vec3(1.0,1.0,1.0);
     if (uIsTextured) {
-        texColorDiffuse = vec3(texture2D(uSamplerDiffuse, vTextureCoord));
-        texColorSpecular = vec3(texture2D(uSamplerSpecular, vTextureCoord));
+        texColorDiffuse = vec3(texture(uSamplerDiffuse, vTextureCoord));
+        texColorSpecular = vec3(texture(uSamplerSpecular, vTextureCoord));
     }
 
     highp vec3 resultColor = calcPointLight(uLight, texColorDiffuse, texColorSpecular);
@@ -162,5 +166,6 @@ void main() {
         resultColor += calcSpotLight(uFlashlight, texColorDiffuse, texColorSpecular);
     }
 
-    gl_FragColor = vec4(resultColor, 1.0);
+
+    fragColor = vec4(resultColor, 1.0);
 }
