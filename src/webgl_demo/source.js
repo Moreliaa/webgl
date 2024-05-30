@@ -5,8 +5,10 @@ import Settings from "./settings.js";
 import Camera from "./camera.js";
 import { initShaderProgram } from "./program.js";
 import { degToRad } from "./util.js";
-import Scene from "./scene.js";
-import { loadGLTF } from "./gltf_loader.js";
+import { createWhaleScenes } from "./scenes/whale_scene.js";
+import { createBoxesScenes } from "./scenes/boxes_scene.js";
+import { createSolarScenes } from "./scenes/solar_scene.js";
+import { createBlendScenes } from "./scenes/blend_scene.js";
 
 main();
 
@@ -22,6 +24,8 @@ async function main() {
     gl.depthFunc(gl.LESS);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     let program = await initShaderProgram(gl, "vertex.vs", "fragment.fs");
     let drawableProgramInfo = {
@@ -67,79 +71,6 @@ async function main() {
             isBlinnPhongShading: gl.getUniformLocation(program, "uIsBlinnPhongShading"),
         }
     };
-
-    let textureInfo_whale = {
-        textureDiffuse: loadTexture(gl, "assets/killer whale/whale.png"),
-        textureSpecular: loadTexture(gl, "assets/killer whale/whale.png"),
-    };
-    let whale_gltf = await loadGLTF(gl, "assets/killer whale/whale.CYCLES.gltf", textureInfo_whale);
-    
-    whale_gltf.scenes.forEach(scene => {
-        scene.root.translate([0,9,0])
-        scene.root.rotateSourceX(90);
-        scene.root.rotateSourceZ(90);
-    });
-    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root));
-    console.log(whale_gltf.scenes[0].root)
-
-    let cube_scale = [2.0,2.0,2.0];
-
-    let textureInfo_cubes = {
-        textureDiffuse: loadTexture(gl, "assets/container2.png"),
-        textureSpecular: loadTexture(gl, "assets/container2_specular.png"),
-    };
-
-    let cubes = [
-        { translation: [0, 0, 0],    rotation: degToRad(0), scale:          cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [-10, -5, 0], rotation: degToRad(40) , scale:        cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [10, 5, 0],   rotation: degToRad(70) , scale:        cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [-23, 0, -2], rotation: degToRad(100), scale:        cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [0, -13, -12],  rotation: degToRad(130), scale:      cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [-8, 5, -13.7],    rotation: degToRad(0) , scale:    cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [-6, 8.5, -4.8], rotation: degToRad(40) , scale:     cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [-12, -8, 8.2],   rotation: degToRad(70) , scale:    cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [14, -14, -15.2], rotation: degToRad(100), scale:    cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [15, -9, -25],  rotation: degToRad(130), scale:      cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [-8, 5, -30.7],    rotation: degToRad(170) , scale:  cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [-6, 8.5, -40.8], rotation: degToRad(200) , scale:   cube_scale, textureInfo: textureInfo_cubes },
-        { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: cube_scale, textureInfo: textureInfo_cubes }, 
-    ];
-
-    // intentionally no specular for these
-    let textureInfo_sun = {
-        textureDiffuse: loadTexture(gl, "assets/sun.jpg"),
-    };
-
-    let textureInfo_earth = {
-        textureDiffuse: loadTexture(gl, "assets/earth.jpg"),
-    };
-
-    let textureInfo_moon = {
-        textureDiffuse: loadTexture(gl, "assets/moon.png"),
-    };
-
-    let spheres_solarSystem = [ // scaling also depends on parent node
-        { id: "sun", translation: [0, 0, -5],    rotation: degToRad(0), scale: [5.0,5.0,5.0], textureInfo: textureInfo_sun },
-        { id: "earth", translation: [0, 4, 0],    rotation: degToRad(0), scale: [0.5,0.5,0.5], textureInfo: textureInfo_earth },
-        { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [0.3,0.3,0.3], textureInfo: textureInfo_moon },
-    ];
-
-   
-
-    let cube_gltf = await loadGLTF(gl, "assets/cube/cube.gltf");
-    let sphere_gltf = await loadGLTF(gl, "assets/sphere/sphere.gltf");
-
-    let scenes_solarSystem = [new Scene()];
-    scenes_solarSystem.forEach(scene => {
-        let sphereRoot = sphere_gltf.scenes[sphere_gltf.scene].root;
-        scene.addObjectHierarchy(spheres_solarSystem, sphereRoot);
-    });
-
-    let scenes_boxes = [new Scene()];
-    scenes_boxes.forEach(scene => {
-        let cubeRoot = cube_gltf.scenes[cube_gltf.scene].root;
-        scene.addObjectsToRoot(cubes, cubeRoot);
-    });
     
     let buffers = initBuffers(gl); // used only for point light now
 
@@ -162,6 +93,10 @@ async function main() {
     let then = 0;
     let rotation = 0;
 
+    let scenes_whale = await createWhaleScenes(gl);
+    let scenes_boxes = await createBoxesScenes(gl);
+    let scenes_solarSystem = await createSolarScenes(gl);
+    let scenes_blend = await createBlendScenes(gl);
    
     const keyboard = new Keyboard();
     const mouse = new Mouse(canvas);
@@ -230,7 +165,7 @@ async function main() {
         let scenesToRender = [];
         switch (settings.scene) {
             case settings.scenes_enum.whale:
-                scenesToRender = whale_scenes;
+                scenesToRender = scenes_whale;
                 break;
             case settings.scenes_enum.boxes:
                 scenesToRender = scenes_boxes;
@@ -238,8 +173,11 @@ async function main() {
             case settings.scenes_enum.solar:
                 scenesToRender = scenes_solarSystem;
                 break;
+            case settings.scenes_enum.blend:
+                scenesToRender = scenes_blend;
+                break;
             default:
-                console.error("unknown scene " + settings.scene);
+                console.error("unknown scene " + settings.scene.toString());
         }
 
         for (let scene of scenesToRender) {
@@ -250,35 +188,4 @@ async function main() {
     }
 
     requestAnimationFrame(render);
-}
-
-function loadTexture(gl, path) {
-    let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
-    let image = new Image();
-    image.onload = function () {
-        let target = gl.TEXTURE_2D;
-        let level = 0;
-        let internalformat = gl.RGBA;
-        let format = gl.RGBA;
-        let type = gl.UNSIGNED_BYTE;
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(target, level, internalformat, format, type, image);
-        if (isPow2(image.width) && isPow2(image.height)) {
-            gl.generateMipmap(gl.TEXTURE_2D);
-        } else {
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        }
-
-    }
-    image.src = path;
-
-    return texture;
-}
-
-function isPow2(val) {
-    return val & (val - 1) === 0;
 }

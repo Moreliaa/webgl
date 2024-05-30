@@ -151,21 +151,24 @@ highp vec3 calcPointLight(PointLight light, highp vec3 texColorDiffuse, highp ve
 }
 
 void main() {
-    highp vec3 texColorDiffuse = vec3(1.0,1.0,1.0);
-    highp vec3 texColorSpecular = vec3(1.0,1.0,1.0);
+    highp vec4 texColorDiffuse = vec4(1.0,1.0,1.0,1.0);
+    highp vec4 texColorSpecular = vec4(1.0,1.0,1.0,1.0);
     if (uIsTextured) {
-        texColorDiffuse = vec3(texture(uSamplerDiffuse, vTextureCoord));
-        texColorSpecular = vec3(texture(uSamplerSpecular, vTextureCoord));
+        texColorDiffuse = texture(uSamplerDiffuse, vTextureCoord);
+        texColorSpecular = texture(uSamplerSpecular, vTextureCoord);
     }
 
-    highp vec3 resultColor = calcPointLight(uLight, texColorDiffuse, texColorSpecular);
+    highp vec3 texColorDiffuseVec3 = vec3(texColorDiffuse);
+    highp vec3 texColorSpecularVec3 = vec3(texColorSpecular);
+
+    highp vec3 resultColor = calcPointLight(uLight, texColorDiffuseVec3, texColorSpecularVec3);
     if (uIsDirLighting) {
-        resultColor += calcDirLight(uDirLight, texColorDiffuse, texColorSpecular);
+        resultColor += calcDirLight(uDirLight, texColorDiffuseVec3, texColorSpecularVec3);
     }
     if (uIsFlashlight) {
-        resultColor += calcSpotLight(uFlashlight, texColorDiffuse, texColorSpecular);
+        resultColor += calcSpotLight(uFlashlight, texColorDiffuseVec3, texColorSpecularVec3);
     }
 
 
-    fragColor = vec4(resultColor, 1.0);
+    fragColor = vec4(resultColor, texColorDiffuse.a);
 }

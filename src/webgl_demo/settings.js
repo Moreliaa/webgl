@@ -39,6 +39,7 @@ export default class Settings {
             whale: Symbol("whale"),
             boxes: Symbol("boxes"),
             solar: Symbol("solar"),
+            blend: Symbol("blend"),
         });
         this.scene = this.scenes_enum.whale;
 
@@ -89,6 +90,10 @@ export default class Settings {
 
         document.getElementById("ctrl_scene_solar").onchange = (event) => {
             this.scene = this.scenes_enum.solar;
+        };
+
+        document.getElementById("ctrl_scene_blend").onchange = (event) => {
+            this.scene = this.scenes_enum.blend;
         };
 
         document.getElementById("ctrl_rotatingLight").onchange = (event) => {
