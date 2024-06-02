@@ -1,4 +1,4 @@
-import { initBuffers } from "./buffers.js";
+import { initBuffers, initSkyboxBuffers } from "./buffers.js";
 import Keyboard from "./keyboard.js";
 import Mouse from "./mouse.js";
 import Settings from "./settings.js";
@@ -9,14 +9,32 @@ import { createWhaleScenes } from "./scenes/whale_scene.js";
 import { createBoxesScenes } from "./scenes/boxes_scene.js";
 import { createSolarScenes } from "./scenes/solar_scene.js";
 import { createBlendScenes } from "./scenes/blend_scene.js";
+import { loadSkybox } from "./texture.js";
 
 main();
 
 async function main() {
     let canvas = document.querySelector("#glcanvas");
 
-    /** @type {WebGLRenderingContext} */
+    /** @type {WebGL2RenderingContext} */
     let gl = canvas.getContext("webgl2");
+    let skybox = {
+        cubeMap: loadSkybox(gl, "assets/skybox/"),
+        buffers: initSkyboxBuffers(gl)
+    };
+
+    let skybox_program = await initShaderProgram(gl, "vertex_skybox.vs", "fragment_skybox.fs");
+    let skybox_programInfo = {
+        program: skybox_program,
+        attributes: {
+            position: gl.getAttribLocation(skybox_program, "aPosition"),
+        },
+        uniforms: {
+            view: gl.getUniformLocation(skybox_program, "uViewMatrix"),
+            perspective: gl.getUniformLocation(skybox_program, "uPerspectiveMatrix"),
+            sampler: gl.getUniformLocation(skybox_program, "uCubeMap"),
+        },
+    }
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -37,6 +55,7 @@ async function main() {
         },
 
         uniforms: {
+            cubeMap: gl.getUniformLocation(program, "uCubeMap"),
             model: gl.getUniformLocation(program, "uModelMatrix"),
             normal: gl.getUniformLocation(program, "uNormalMatrix"),
             view: gl.getUniformLocation(program, "uViewMatrix"),
@@ -138,6 +157,26 @@ async function main() {
 
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        // Skybox
+        gl.depthMask(false);
+        gl.useProgram(skybox_programInfo.program);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, skybox.buffers.vertexBuffer);
+        gl.vertexAttribPointer(skybox_programInfo.attributes.position, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(skybox_programInfo.attributes.position);
+
+        gl.uniformMatrix4fv(skybox_programInfo.uniforms.perspective, false, perspectiveMatrix);
+        gl.uniformMatrix4fv(skybox_programInfo.uniforms.view, false, camera.viewMatrix_onlyRotation);
+
+        gl.uniform1i(skybox_programInfo.uniforms.sampler, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox.cubeMap);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 36);
+        gl.depthMask(true);
 
         // Point Light
         {

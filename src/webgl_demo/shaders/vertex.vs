@@ -16,6 +16,8 @@ out highp vec3 vNormal;
 
 out highp vec2 vTextureCoord;
 
+out highp vec3 vCubeMapDirection;
+
 void main() {
     gl_Position = uPerspectiveMatrix * uViewMatrix * uModelMatrix * aPosition;
     vTextureCoord = aTextureCoord;
