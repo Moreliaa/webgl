@@ -9,15 +9,21 @@ export default class Camera {
         this.front = this.setFront(mouse);
 
         this.viewMatrix = mat4.create();
+        this.viewMatrix_onlyRotation = mat4.create();
     }
 
     updateViewMatrix() {
-        let target = vec3.create();
-        vec3.add(target, this.pos, this.front);
+        {
+            let target = vec3.create();
+            vec3.add(target, this.pos, this.front);
+            let viewMatrix = mat4.create();
+            mat4.lookAt(viewMatrix, this.pos, target, this.up);
+            this.viewMatrix = viewMatrix;
+        }
 
         let viewMatrix = mat4.create();
-        mat4.lookAt(viewMatrix, this.pos, target, this.up);
-        this.viewMatrix = viewMatrix;
+        mat4.lookAt(viewMatrix, this.pos, this.front, this.up);
+        this.viewMatrix_onlyRotation = viewMatrix;
     }
 
     setFront(mouse) {

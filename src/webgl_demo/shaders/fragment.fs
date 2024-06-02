@@ -1,11 +1,15 @@
 # version 300 es
 
+in highp vec3 vCubeMapDirection;
+
 in highp vec3 vPosition;
 in highp vec3 vNormal;
 
 in highp vec2 vTextureCoord;
 
 out highp vec4 fragColor;
+
+uniform samplerCube uCubeMap;
 
 uniform sampler2D uSamplerDiffuse;
 uniform sampler2D uSamplerSpecular;
