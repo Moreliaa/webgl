@@ -36,8 +36,8 @@ export function loadSkybox(gl) {
         {path: "assets/skybox/left.jpg", target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X}, // left
         {path: "assets/skybox/top.jpg", target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y}, // top
         {path: "assets/skybox/bottom.jpg", target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y}, // bottom
-        {path: "assets/skybox/back.jpg", target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z}, // back
-        {path: "assets/skybox/front.jpg", target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z}, // front
+        {path: "assets/skybox/front.jpg", target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z}, // back
+        {path: "assets/skybox/back.jpg", target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z}, // front
     ];
     for (let face of faces) {
         let image = new Image(); // todo texture image
