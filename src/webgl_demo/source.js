@@ -152,7 +152,7 @@ async function main() {
         camera.handleInput(mouse, keyboard, delta);
 
         let perspectiveMatrix = mat4.create();
-        mat4.perspective(perspectiveMatrix, 90, canvas.clientWidth / canvas.clientHeight, 1, 100);
+        mat4.perspective(perspectiveMatrix, degToRad(90), canvas.clientWidth / canvas.clientHeight, 1, 100);
 
 
         // Render
