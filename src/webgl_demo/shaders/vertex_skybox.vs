@@ -9,5 +9,6 @@ out highp vec3 vCubeMapDirection;
 
 void main() {
     vCubeMapDirection = aPosition;
-    gl_Position = uPerspectiveMatrix * uViewMatrix * vec4(aPosition, 1.0);
+    vec4 position = uPerspectiveMatrix * uViewMatrix * vec4(aPosition, 1.0);
+    gl_Position = position.xyww;
 }

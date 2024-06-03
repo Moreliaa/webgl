@@ -41,6 +41,7 @@ async function main() {
     
     gl.depthFunc(gl.LESS);
     gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
     gl.enable(gl.CULL_FACE);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -158,26 +159,6 @@ async function main() {
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // Skybox
-        gl.depthMask(false);
-        gl.useProgram(skybox_programInfo.program);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, skybox.buffers.vertexBuffer);
-        gl.vertexAttribPointer(skybox_programInfo.attributes.position, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(skybox_programInfo.attributes.position);
-
-        gl.uniformMatrix4fv(skybox_programInfo.uniforms.perspective, false, perspectiveMatrix);
-        gl.uniformMatrix4fv(skybox_programInfo.uniforms.view, false, camera.viewMatrix_onlyRotation);
-
-        gl.uniform1i(skybox_programInfo.uniforms.sampler, 0);
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox.cubeMap);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-
-        gl.drawArrays(gl.TRIANGLES, 0, 36);
-        gl.depthMask(true);
-
         // Point Light
         {
             gl.useProgram(programInfo_pointLight.program);
@@ -222,6 +203,26 @@ async function main() {
         for (let scene of scenesToRender) {
             scene.drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix);
         }
+
+        // Skybox
+        gl.depthMask(false);
+        gl.useProgram(skybox_programInfo.program);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, skybox.buffers.vertexBuffer);
+        gl.vertexAttribPointer(skybox_programInfo.attributes.position, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(skybox_programInfo.attributes.position);
+
+        gl.uniformMatrix4fv(skybox_programInfo.uniforms.perspective, false, perspectiveMatrix);
+        gl.uniformMatrix4fv(skybox_programInfo.uniforms.view, false, camera.viewMatrix_onlyRotation);
+
+        gl.uniform1i(skybox_programInfo.uniforms.sampler, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox.cubeMap);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 36);
+        gl.depthMask(true);
 
         requestAnimationFrame(render);
     }
