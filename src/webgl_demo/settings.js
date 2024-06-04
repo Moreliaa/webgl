@@ -43,6 +43,11 @@ export default class Settings {
         });
         this.scene = this.scenes_enum.whale;
 
+        this.isReflection = false;
+
+        document.getElementById("ctrl_reflection").onchange = (event) => {
+            this.isReflection = event.target.checked;
+        }
 
         document.getElementById("ctrl_flashlightActive").onchange = (event) => {
             this.isFlashlight = event.target.checked;

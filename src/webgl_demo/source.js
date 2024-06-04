@@ -89,6 +89,7 @@ async function main() {
             isTextured: gl.getUniformLocation(program, "uIsTextured"),
             isPhongShading: gl.getUniformLocation(program, "uIsPhongShading"),
             isBlinnPhongShading: gl.getUniformLocation(program, "uIsBlinnPhongShading"),
+            isReflection: gl.getUniformLocation(program, "uIsReflection"),
         }
     };
     
@@ -200,8 +201,12 @@ async function main() {
                 console.error("unknown scene " + settings.scene.toString());
         }
 
+        gl.useProgram(drawableProgramInfo.program);
+        
+        
+
         for (let scene of scenesToRender) {
-            scene.drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix);
+            scene.drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix, skybox.cubeMap);
         }
 
         // Skybox

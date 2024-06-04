@@ -1,7 +1,5 @@
 # version 300 es
 
-in highp vec3 vCubeMapDirection;
-
 in highp vec3 vPosition;
 in highp vec3 vNormal;
 
@@ -17,6 +15,7 @@ uniform sampler2D uSamplerSpecular;
 uniform bool uIsTextured;
 uniform bool uIsPhongShading;
 uniform bool uIsBlinnPhongShading;
+uniform bool uIsReflection;
 
 struct Material {
     highp vec3 diffuseColor;
@@ -154,13 +153,37 @@ highp vec3 calcPointLight(PointLight light, highp vec3 texColorDiffuse, highp ve
     return texColorDiffuse * ambient + texColorDiffuse * diffuse + texColorSpecular * specular;
 }
 
+highp vec4 calcCubeMapReflection() {
+    highp vec3 viewDirection = normalize(uCameraPosition - vPosition);
+    highp vec3 norm = normalize(vNormal);
+    highp vec3 cubeTexDir = reflect(-viewDirection, norm);
+    return texture(uCubeMap, cubeTexDir);
+}
+
 void main() {
-    highp vec4 texColorDiffuse = vec4(1.0,1.0,1.0,1.0);
-    highp vec4 texColorSpecular = vec4(1.0,1.0,1.0,1.0);
+    highp vec4 texColorDiffuse;
+    highp vec4 texColorSpecular;
     if (uIsTextured) {
         texColorDiffuse = texture(uSamplerDiffuse, vTextureCoord);
         texColorSpecular = texture(uSamplerSpecular, vTextureCoord);
+        if (uIsReflection) {
+            highp vec4 reflectedColor = calcCubeMapReflection();
+            texColorDiffuse += reflectedColor;
+            texColorSpecular += reflectedColor;
+        }
+    } else {
+        if (uIsReflection) {
+            highp vec4 reflectedColor = calcCubeMapReflection();
+            texColorDiffuse = reflectedColor;
+            texColorSpecular = reflectedColor;
+        } else {
+            texColorDiffuse = vec4(1.0,1.0,1.0,1.0);
+            texColorSpecular = vec4(1.0,1.0,1.0,1.0);
+        }
     }
+
+    
+    
 
     highp vec3 texColorDiffuseVec3 = vec3(texColorDiffuse);
     highp vec3 texColorSpecularVec3 = vec3(texColorSpecular);

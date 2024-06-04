@@ -42,10 +42,10 @@ export default class Scene {
         }
     }
 
-    drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix) {
+    drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix, skybox) {
         function renderNode(node) {
             for (let drawable of node.drawables) {
-                drawable.render(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix, node);
+                drawable.render(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix, skybox, node);
             }
         }
 

@@ -5,7 +5,7 @@ export default class MeshRenderer {
         this.mesh = mesh;
     }
 
-    render(gl, programInfo, settings, camera, currentPointLightPosition, perspectiveMatrix, node) {
+    render(gl, programInfo, settings, camera, currentPointLightPosition, perspectiveMatrix, skybox, node) {
         const { mesh } = this;
 
         gl.useProgram(programInfo.program);
@@ -44,9 +44,11 @@ export default class MeshRenderer {
         gl.uniform1i(programInfo.uniforms.isTextured, settings.isTextured);
         gl.uniform1i(programInfo.uniforms.isPhongShading, settings.isPhongShading());
         gl.uniform1i(programInfo.uniforms.isBlinnPhongShading, settings.isBlinnPhongShading());
+        gl.uniform1i(programInfo.uniforms.isReflection, settings.isReflection);
 
         gl.uniform1i(programInfo.uniforms.samplerDiffuse, 0);
         gl.uniform1i(programInfo.uniforms.samplerSpecular, 1);
+        gl.uniform1i(programInfo.uniforms.cubeMap, 2);
 
         if (node.textureInfo) {
             gl.activeTexture(gl.TEXTURE0);
@@ -57,6 +59,10 @@ export default class MeshRenderer {
             gl.bindTexture(gl.TEXTURE_2D, node.textureInfo.textureSpecular);
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         }
+
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         for (const primitive of mesh.primitives) {
             setAttributes(gl, programInfo, primitive.bufferInfo);
