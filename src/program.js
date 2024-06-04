@@ -4,8 +4,8 @@ export async function initShaderProgram(gl, vertexShaderFile, fragmentShaderFile
     let vShader = gl.createShader(gl.VERTEX_SHADER);
     let fShader = gl.createShader(gl.FRAGMENT_SHADER);
 
-    let vSource = await loadShaderSource("src/webgl_demo/shaders/" + vertexShaderFile)
-    let fSource = await loadShaderSource("src/webgl_demo/shaders/" + fragmentShaderFile);
+    let vSource = await loadShaderSource("src/shaders/" + vertexShaderFile)
+    let fSource = await loadShaderSource("src/shaders/" + fragmentShaderFile);
 
     gl.shaderSource(vShader, vSource);
     gl.shaderSource(fShader, fSource);
