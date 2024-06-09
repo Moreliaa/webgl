@@ -2,7 +2,7 @@ import { loadTexture } from "../texture.js";
 import { loadGLTF } from "../gltf_loader.js";
 import Scene from "../scene.js";
 
-export async function createWhaleScenes(gl) {
+export async function createWhaleScenes(gl, programInfo) {
     let textureInfo_whale = {
         textureDiffuse: loadTexture(gl, "assets/killer whale/whale.png"),
         textureSpecular: loadTexture(gl, "assets/killer whale/whale.png"),
@@ -14,6 +14,6 @@ export async function createWhaleScenes(gl) {
         scene.root.rotateSourceX(90);
         scene.root.rotateSourceZ(90);
     });
-    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(scene.root));
+    let whale_scenes = whale_gltf.scenes.map(scene => new Scene(programInfo, scene.root));
     return whale_scenes;
 }

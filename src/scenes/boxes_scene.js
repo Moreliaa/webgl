@@ -3,7 +3,7 @@ import { loadGLTF } from "../gltf_loader.js";
 import Scene from "../scene.js";
 import { degToRad } from "../util.js";
 
-export async function createBoxesScenes(gl) {
+export async function createBoxesScenes(gl, programInfo) {
     let cube_gltf = await loadGLTF(gl, "assets/cube/cube.gltf");
     let cube_scale = [2.0,2.0,2.0];
 
@@ -28,7 +28,7 @@ export async function createBoxesScenes(gl) {
         { translation: [-12, -8, -38.2],   rotation: degToRad(230) , scale: cube_scale, textureInfo: textureInfo_cubes }, 
     ];
 
-    let scenes_boxes = [new Scene()];
+    let scenes_boxes = [new Scene(programInfo)];
     
     scenes_boxes.forEach(scene => {
         let cubeRoot = cube_gltf.scenes[cube_gltf.scene].root;

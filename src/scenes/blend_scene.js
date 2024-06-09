@@ -3,7 +3,7 @@ import { loadGLTF } from "../gltf_loader.js";
 import Scene from "../scene.js";
 import { degToRad } from "../util.js";
 
-export async function createBlendScenes(gl) {
+export async function createBlendScenes(gl, programInfo) {
     let plane_gltf = await loadGLTF(gl, "assets/plane/plane.gltf");
     let cube_gltf = await loadGLTF(gl, "assets/cube/cube.gltf");
     let textureInfo_cubes = {
@@ -29,7 +29,7 @@ export async function createBlendScenes(gl) {
         { translation: [10.1, yOffset, 0],    rotation: degToRad(0), scale:          cube_scale, textureInfo: textureInfo_window },
     ];
 
-    let scenes_blend = [new Scene()];
+    let scenes_blend = [new Scene(programInfo)];
     
     scenes_blend.forEach(scene => {
         scene.rootNode.rotateSourceY(-90);

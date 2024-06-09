@@ -3,7 +3,7 @@ import { loadGLTF } from "../gltf_loader.js";
 import Scene from "../scene.js";
 import { degToRad } from "../util.js";
 
-export async function createSolarScenes(gl) {
+export async function createSolarScenes(gl, programInfo) {
     let sphere_gltf = await loadGLTF(gl, "assets/sphere/sphere.gltf");
     // intentionally no specular for these
     let textureInfo_sun = {
@@ -24,7 +24,7 @@ export async function createSolarScenes(gl) {
         { id: "moon", translation: [0, 2, 0],    rotation: degToRad(0), scale: [0.3,0.3,0.3], textureInfo: textureInfo_moon },
     ];
 
-    let scenes_solarSystem = [new Scene()];
+    let scenes_solarSystem = [new Scene(programInfo)];
     scenes_solarSystem.forEach(scene => {
         let sphereRoot = sphere_gltf.scenes[sphere_gltf.scene].root;
         scene.addObjectHierarchy(spheres_solarSystem, sphereRoot);

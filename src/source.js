@@ -10,6 +10,8 @@ import { createBoxesScenes } from "./scenes/boxes_scene.js";
 import { createSolarScenes } from "./scenes/solar_scene.js";
 import { createBlendScenes } from "./scenes/blend_scene.js";
 import { loadSkybox } from "./texture.js";
+import { createAsteroidScenes } from "./scenes/asteroid_scene.js";
+import { renderDrawable, renderDrawableAsteroid } from "./render_functions.js";
 
 main();
 
@@ -18,9 +20,58 @@ async function main() {
 
     /** @type {WebGL2RenderingContext} */
     let gl = canvas.getContext("webgl2");
+    console.log("yo", gl.FLOAT)
     let skybox = {
         cubeMap: loadSkybox(gl, "assets/skybox/"),
         buffers: initSkyboxBuffers(gl)
+    };
+
+    let asteroid_program = await initShaderProgram(gl, "vertex_asteroid.vs", "fragment.fs");
+    let asteroid_programInfo = {
+        renderFunc: renderDrawableAsteroid,
+        program: asteroid_program,
+        attributes: {
+            position: gl.getAttribLocation(asteroid_program, "aPosition"),
+            normal: gl.getAttribLocation(asteroid_program, "aNormal"),
+            texture: gl.getAttribLocation(asteroid_program, "aTextureCoord"),
+            modelMatrix: gl.getAttribLocation(asteroid_program, "iModelMatrix"),
+            normalMatrix: gl.getAttribLocation(asteroid_program, "iNormalMatrix"),
+        },
+
+        uniforms: {
+            cubeMap: gl.getUniformLocation(asteroid_program, "uCubeMap"),
+            view: gl.getUniformLocation(asteroid_program, "uViewMatrix"),
+            perspective: gl.getUniformLocation(asteroid_program, "uPerspectiveMatrix"),
+            samplerDiffuse: gl.getUniformLocation(asteroid_program, "uSamplerDiffuse"),
+            samplerSpecular: gl.getUniformLocation(asteroid_program, "uSamplerSpecular"),
+            diffuseColor: gl.getUniformLocation(asteroid_program, "uMaterial.diffuseColor"),
+            specularColor: gl.getUniformLocation(asteroid_program, "uMaterial.specularColor"),
+            shininess: gl.getUniformLocation(asteroid_program, "uMaterial.shininess"),
+            lightPosition: gl.getUniformLocation(asteroid_program, "uLight.position"),
+            attenuationLinear: gl.getUniformLocation(asteroid_program, "uLight.attenuationLinear"),
+            attenuationSquare: gl.getUniformLocation(asteroid_program, "uLight.attenuationSquare"),
+            lightAmbient: gl.getUniformLocation(asteroid_program, "uLight.ambientColor"),
+            lightDiffuse: gl.getUniformLocation(asteroid_program, "uLight.diffuseColor"),
+            lightSpecular: gl.getUniformLocation(asteroid_program, "uLight.specularColor"),
+            cameraPosition: gl.getUniformLocation(asteroid_program, "uCameraPosition"),
+            isDirLighting: gl.getUniformLocation(asteroid_program, "uIsDirLighting"),
+            dirLightDirection: gl.getUniformLocation(asteroid_program, "uDirLight.direction"),
+            dirLightAmbient: gl.getUniformLocation(asteroid_program, "uDirLight.ambientColor"),
+            dirLightDiffuse: gl.getUniformLocation(asteroid_program, "uDirLight.diffuseColor"),
+            dirLightSpecular: gl.getUniformLocation(asteroid_program, "uDirLight.specularColor"),
+            isFlashlight: gl.getUniformLocation(asteroid_program, "uIsFlashlight"),
+            flashlightPosition: gl.getUniformLocation(asteroid_program, "uFlashlight.position"),
+            flashlightDirection: gl.getUniformLocation(asteroid_program, "uFlashlight.direction"),
+            flashlightAngleCutoffInner: gl.getUniformLocation(asteroid_program, "uFlashlight.angleCutoffInner"),
+            flashlightAngleCutoffOuter: gl.getUniformLocation(asteroid_program, "uFlashlight.angleCutoffOuter"),
+            flashlightAmbient: gl.getUniformLocation(asteroid_program, "uFlashlight.ambientColor"),
+            flashlightDiffuse: gl.getUniformLocation(asteroid_program, "uFlashlight.diffuseColor"),
+            flashlightSpecular: gl.getUniformLocation(asteroid_program, "uFlashlight.specularColor"),
+            isTextured: gl.getUniformLocation(asteroid_program, "uIsTextured"),
+            isPhongShading: gl.getUniformLocation(asteroid_program, "uIsPhongShading"),
+            isBlinnPhongShading: gl.getUniformLocation(asteroid_program, "uIsBlinnPhongShading"),
+            isReflection: gl.getUniformLocation(asteroid_program, "uIsReflection"),
+        }
     };
 
     let skybox_program = await initShaderProgram(gl, "vertex_skybox.vs", "fragment_skybox.fs");
@@ -48,6 +99,7 @@ async function main() {
 
     let program = await initShaderProgram(gl, "vertex.vs", "fragment.fs");
     let drawableProgramInfo = {
+        renderFunc: renderDrawable,
         program: program,
         attributes: {
             position: gl.getAttribLocation(program, "aPosition"),
@@ -114,10 +166,11 @@ async function main() {
     let then = 0;
     let rotation = 0;
 
-    let scenes_whale = await createWhaleScenes(gl);
-    let scenes_boxes = await createBoxesScenes(gl);
-    let scenes_solarSystem = await createSolarScenes(gl);
-    let scenes_blend = await createBlendScenes(gl);
+    let scenes_whale = await createWhaleScenes(gl, drawableProgramInfo);
+    let scenes_boxes = await createBoxesScenes(gl, drawableProgramInfo);
+    let scenes_solarSystem = await createSolarScenes(gl, drawableProgramInfo);
+    let scenes_blend = await createBlendScenes(gl, drawableProgramInfo);
+    let scenes_asteroid = await createAsteroidScenes(gl, asteroid_programInfo);
    
     const keyboard = new Keyboard();
     const mouse = new Mouse(canvas);
@@ -197,16 +250,15 @@ async function main() {
             case settings.scenes_enum.blend:
                 scenesToRender = scenes_blend;
                 break;
+            case settings.scenes_enum.asteroid:
+                scenesToRender = scenes_asteroid;
+                break;
             default:
                 console.error("unknown scene " + settings.scene.toString());
         }
 
-        gl.useProgram(drawableProgramInfo.program);
-        
-        
-
         for (let scene of scenesToRender) {
-            scene.drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix, skybox.cubeMap);
+            scene.drawScene(gl, settings, camera, lightPosCurrent, perspectiveMatrix, skybox.cubeMap);
         }
 
         // Skybox

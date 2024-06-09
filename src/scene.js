@@ -2,8 +2,9 @@ import Node from "./node.js";
 import TRS from "./trs.js";
 
 export default class Scene {
-    constructor(rootNode = undefined) {
+    constructor(programInfo, rootNode = undefined) {
         this.rootNode = rootNode || new Node(new TRS(), 0);
+        this.programInfo = programInfo;
     }
 
     updateNodeRotationZ(nodeId, rotation) {
@@ -42,10 +43,11 @@ export default class Scene {
         }
     }
 
-    drawScene(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix, skybox) {
+    drawScene(gl, settings, camera, lightPosCurrent, perspectiveMatrix, skybox) {
+        let programInfo = this.programInfo;
         function renderNode(node) {
             for (let drawable of node.drawables) {
-                drawable.render(gl, drawableProgramInfo, settings, camera, lightPosCurrent, perspectiveMatrix, skybox, node);
+                drawable.render(gl, programInfo, settings, camera, lightPosCurrent, perspectiveMatrix, skybox, node);
             }
         }
 
