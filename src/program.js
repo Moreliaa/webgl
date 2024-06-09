@@ -15,12 +15,12 @@ export async function initShaderProgram(gl, vertexShaderFile, fragmentShaderFile
 
     if (!gl.getShaderParameter(vShader, gl.COMPILE_STATUS)) {
         const info = gl.getShaderInfoLog(vShader);
-        console.error(`Could not compile WebGL shader. \n\n${info}`);
+        console.error(`Could not compile vertex shader. \n\n${info}`);
     }
 
     if (!gl.getShaderParameter(fShader, gl.COMPILE_STATUS)) {
         const info = gl.getShaderInfoLog(fShader);
-        console.error(`Could not compile WebGL shader. \n\n${info}`);
+        console.error(`Could not compile fragment shader. \n\n${info}`);
     }
 
     gl.attachShader(program, vShader);

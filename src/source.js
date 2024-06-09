@@ -20,7 +20,6 @@ async function main() {
 
     /** @type {WebGL2RenderingContext} */
     let gl = canvas.getContext("webgl2");
-    console.log("yo", gl.FLOAT)
     let skybox = {
         cubeMap: loadSkybox(gl, "assets/skybox/"),
         buffers: initSkyboxBuffers(gl)
