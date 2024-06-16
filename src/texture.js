@@ -25,6 +25,19 @@ export function loadTexture(gl, path) {
     return texture;
 }
 
+export function loadPixelTexture(gl, rgba) {
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    let target = gl.TEXTURE_2D;
+    let level = 0;
+    let internalformat = gl.RGBA;
+    let format = gl.RGBA;
+    let type = gl.UNSIGNED_BYTE;
+    let width_height = 1;
+    gl.texImage2D(target, level, internalformat, width_height, width_height, 0, format, type, new Uint8Array(rgba));
+    return texture;
+}
+
 /**
  * @param {WebGL2RenderingContext} gl
  */

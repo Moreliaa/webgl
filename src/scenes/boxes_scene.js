@@ -1,4 +1,4 @@
-import { loadTexture } from "../texture.js";
+import { loadPixelTexture, loadTexture } from "../texture.js";
 import { loadGLTF } from "../gltf_loader.js";
 import Scene from "../scene.js";
 import { degToRad } from "../util.js";
@@ -34,5 +34,25 @@ export async function createBoxesScenes(gl, programInfo) {
         let cubeRoot = cube_gltf.scenes[cube_gltf.scene].root;
         scene.addObjectsToRoot(cubes, cubeRoot);
     });
+
+    let plane_gltf = await loadGLTF(gl, "assets/plane/plane.gltf");
+    let plane_scale = [100.0, 100.0, 100.0];
+    let plane_color = [255, 255, 255, 255];
+
+    let textureInfo_plane = {
+        textureDiffuse: loadPixelTexture(gl, plane_color),
+        textureSpecular: loadPixelTexture(gl, plane_color),
+    };
+
+    let planes = [
+        { translation: [0, -2.0, 0], rotation: degToRad(90), scale: plane_scale, textureInfo: textureInfo_plane },
+    ];
+
+    scenes_boxes.forEach(scene => {
+        let plane_root = plane_gltf.scenes[plane_gltf.scene].root;
+        scene.addObjectsToRoot(planes, plane_root);
+    });
+
+
     return scenes_boxes;
 }
