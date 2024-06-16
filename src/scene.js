@@ -43,11 +43,23 @@ export default class Scene {
         }
     }
 
-    drawScene(gl, settings, camera, lightPosCurrent, perspectiveMatrix, skybox) {
+    drawShadowMap(gl, additionalInfos)  {
+        let programInfo = additionalInfos.programInfo;
+        function renderNode(node) {
+            for (let drawable of node.drawables) {
+                drawable.render(gl, programInfo, additionalInfos, node);
+            }
+        }
+
+        this.rootNode.updateWorldMatrix();
+        this.rootNode.traverse(renderNode);
+    }
+
+    drawScene(gl, additionalInfos) {
         let programInfo = this.programInfo;
         function renderNode(node) {
             for (let drawable of node.drawables) {
-                drawable.render(gl, programInfo, settings, camera, lightPosCurrent, perspectiveMatrix, skybox, node);
+                drawable.render(gl, programInfo, additionalInfos, node);
             }
         }
 

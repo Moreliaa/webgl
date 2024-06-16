@@ -11,15 +11,60 @@ import { createSolarScenes } from "./scenes/solar_scene.js";
 import { createBlendScenes } from "./scenes/blend_scene.js";
 import { loadSkybox } from "./texture.js";
 import { createAsteroidScenes } from "./scenes/asteroid_scene.js";
-import { renderDrawable, renderDrawableAsteroid } from "./render_functions.js";
+import { renderDrawable, renderDrawableAsteroid, renderShadow } from "./render_functions.js";
+
+const SHADOW_MAP_DIM = 1024;
 
 main();
+
+
+/**
+ * 
+ * @param {WebGL2RenderingContext} gl 
+ */
+function createFrameBufferShadowMap(gl) {
+    
+    let textureDepth = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, textureDepth);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT32F, SHADOW_MAP_DIM, SHADOW_MAP_DIM, 0, gl.DEPTH_COMPONENT, gl.FLOAT, null);
+
+    let frameBuffer = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, textureDepth, 0);
+    gl.readBuffer(gl.NONE);
+    gl.drawBuffers([gl.NONE]);
+    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+        console.error("Frame buffer incomplete");
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    return {frameBufShadowMap: frameBuffer, textureShadowMap: textureDepth};
+}
 
 async function main() {
     let canvas = document.querySelector("#glcanvas");
 
     /** @type {WebGL2RenderingContext} */
     let gl = canvas.getContext("webgl2");
+    const ext = gl.getExtension("OES_texture_float");
+    let {frameBufShadowMap, textureShadowMap} =createFrameBufferShadowMap(gl);
+
+
+    let shadow_program = await initShaderProgram(gl, "vertex_shadowmap.vs", "fragment_empty.fs");
+
+    let shadow_programInfo = {
+        renderFunc: renderShadow,
+        program: shadow_program,
+        attributes: {
+            position: gl.getAttribLocation(shadow_program, "aPosition"),
+        },
+        uniforms: {
+            model: gl.getUniformLocation(shadow_program, "uModelMatrix"),
+            view: gl.getUniformLocation(shadow_program, "uViewMatrix"),
+            ortho: gl.getUniformLocation(shadow_program, "uOrthoMatrix"),
+        }
+    };
+
     let skybox = {
         cubeMap: loadSkybox(gl, "assets/skybox/"),
         buffers: initSkyboxBuffers(gl)
@@ -180,8 +225,12 @@ async function main() {
         if (canvas.width !== canvas.clientWidth || canvas.height != canvas.clientHeight) {
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
-            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            doResize();
         }
+    }
+
+    function doResize() {
+        gl.viewport(0, 0, canvas.width, canvas.height);
     }
 
     function render(now) {
@@ -206,7 +255,8 @@ async function main() {
         camera.handleInput(mouse, keyboard, delta);
 
         let perspectiveMatrix = mat4.create();
-        mat4.perspective(perspectiveMatrix, degToRad(90), canvas.clientWidth / canvas.clientHeight, 1, 100);
+        let far_perspective = 100;
+        mat4.perspective(perspectiveMatrix, degToRad(90), canvas.clientWidth / canvas.clientHeight, 1, far_perspective);
 
 
         // Render
@@ -233,8 +283,7 @@ async function main() {
             gl.uniformMatrix4fv(programInfo_pointLight.uniforms.model, false, modelMatrix);
             gl.drawArrays(gl.TRIANGLES, 0, 36);
         }
-        
-        // Objects
+
         let scenesToRender = [];
         switch (settings.scene) {
             case settings.scenes_enum.whale:
@@ -256,8 +305,30 @@ async function main() {
                 console.error("unknown scene " + settings.scene.toString());
         }
 
+        // Shadow Map
+        {
+            let ortho_shadowMap = mat4.create();
+            mat4.ortho(ortho_shadowMap, 0, 0, SHADOW_MAP_DIM, SHADOW_MAP_DIM, 0.1, far_perspective * 5);
+
+            let dirLightPositionFake = vec3.clone(settings.dirLightDirection);
+            vec3.scale(dirLightPositionFake, dirLightPositionFake, -far_perspective);
+            let viewMatrixDirLight = mat4.create();
+            mat4.lookAt(viewMatrixDirLight, dirLightPositionFake, [0,0,0], [0,1,0]);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, frameBufShadowMap);
+            gl.clear(gl.DEPTH_BUFFER_BIT);
+            gl.viewport(0,0,SHADOW_MAP_DIM,SHADOW_MAP_DIM);
+            for (let scene of scenesToRender) {
+                scene.drawShadowMap(gl, { programInfo: shadow_programInfo, orthoMatrix: ortho_shadowMap, viewMatrix: viewMatrixDirLight});
+            }
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            doResize();
+        }
+    
+        
+        // Objects
         for (let scene of scenesToRender) {
-            scene.drawScene(gl, settings, camera, lightPosCurrent, perspectiveMatrix, skybox.cubeMap);
+            scene.drawScene(gl, { settings, camera, currentPointLightPosition: lightPosCurrent, perspectiveMatrix, skybox: skybox.cubeMap, textureShadowMap });
         }
 
         // Skybox

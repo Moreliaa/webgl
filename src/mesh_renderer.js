@@ -3,8 +3,8 @@ export default class MeshRenderer {
         this.mesh = mesh;
     }
 
-    render(gl, programInfo, settings, camera, currentPointLightPosition, perspectiveMatrix, skybox, node) {
+    render(gl, programInfo, additionalInfos, node) {
         const { mesh } = this;
-        programInfo.renderFunc(gl, mesh, programInfo, settings, camera, currentPointLightPosition, perspectiveMatrix, skybox, node);
+        programInfo.renderFunc(gl, mesh, programInfo, additionalInfos, node);
     }
 }

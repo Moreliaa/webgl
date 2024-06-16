@@ -1,6 +1,32 @@
 import { degToRad } from "./util.js";
 
-export function renderDrawable(gl, mesh, programInfo, settings, camera, currentPointLightPosition, perspectiveMatrix, skybox, node) {
+export function renderShadow(gl, mesh, _, additionalInfos, node) {
+    let {programInfo, orthoMatrix, viewMatrix} = additionalInfos;
+    gl.useProgram(programInfo.program);
+
+    gl.uniformMatrix4fv(programInfo.uniforms.ortho, false, orthoMatrix);
+    gl.uniformMatrix4fv(programInfo.uniforms.view, false, viewMatrix);
+
+    for (const primitive of mesh.primitives) {
+        setAttributes(gl, programInfo, primitive.bufferInfo);
+        let hasIndices = primitive.bufferInfo.indices !== undefined;
+        if (hasIndices) {
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, primitive.bufferInfo.indices);
+        }
+
+        gl.uniformMatrix4fv(programInfo.uniforms.model, false, node.worldMatrix);
+
+        if (hasIndices) {
+            gl.drawElements(gl.TRIANGLES, primitive.bufferInfo.numElements, primitive.bufferInfo.elementType, 0);
+        } else {
+            gl.drawArrays(gl.TRIANGLES, 0, primitive.bufferInfo.numElements)
+        }
+    }
+
+}
+
+export function renderDrawable(gl, mesh, programInfo, additionalInfos, node) {
+    let {settings, camera, currentPointLightPosition, perspectiveMatrix, skybox} = additionalInfos;
     gl.useProgram(programInfo.program);
 
     gl.uniformMatrix4fv(programInfo.uniforms.perspective, false, perspectiveMatrix);
@@ -80,7 +106,8 @@ export function renderDrawable(gl, mesh, programInfo, settings, camera, currentP
     }
 }
 
-export function renderDrawableAsteroid(gl, mesh, programInfo, settings, camera, currentPointLightPosition, perspectiveMatrix, skybox, node) {
+export function renderDrawableAsteroid(gl, mesh, programInfo, additionalInfos, node) {
+    let {settings, camera, currentPointLightPosition, perspectiveMatrix, skybox} = additionalInfos;
     gl.useProgram(programInfo.program);
 
     gl.uniformMatrix4fv(programInfo.uniforms.perspective, false, perspectiveMatrix);
