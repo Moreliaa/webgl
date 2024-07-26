@@ -1,6 +1,6 @@
 import { degToRad } from "./util.js";
 
-export function renderShadow(gl, mesh, _, additionalInfos, node) {
+export function renderShadow(gl, mesh, _, additionalInfos, node) {  
     let {programInfo, orthoMatrix, viewMatrix} = additionalInfos;
     gl.useProgram(programInfo.program);
 

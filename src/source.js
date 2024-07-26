@@ -1,4 +1,4 @@
-import { initBuffers, initSkyboxBuffers } from "./buffers.js";
+import { initBuffers, initQuadBuffers, initSkyboxBuffers } from "./buffers.js";
 import Keyboard from "./keyboard.js";
 import Mouse from "./mouse.js";
 import Settings from "./settings.js";
@@ -27,18 +27,73 @@ function createFrameBufferShadowMap(gl) {
     let textureDepth = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, textureDepth);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT32F, SHADOW_MAP_DIM, SHADOW_MAP_DIM, 0, gl.DEPTH_COMPONENT, gl.FLOAT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
     let frameBuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, textureDepth, 0);
-    gl.readBuffer(gl.NONE);
-    gl.drawBuffers([gl.NONE]);
+
+    let textureColor = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, textureColor);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, SHADOW_MAP_DIM, SHADOW_MAP_DIM, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColor, 0);
+
+    //gl.readBuffer(gl.NONE);
+    //gl.drawBuffers([gl.NONE]);
     if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
         console.error("Frame buffer incomplete");
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-    return {frameBufShadowMap: frameBuffer, textureShadowMap: textureDepth};
+    return {frameBufShadowMap: frameBuffer, textureShadowMap: textureDepth, textureColorShadowMap: textureColor};
+}
+
+async function initQuadTestProgram(gl) {
+    let quadTest_program = await initShaderProgram(gl, "vertex_quad.vs", "fragment_quad.fs");
+
+    let quadTest_programInfo = {
+        program: quadTest_program,
+        attributes: {
+            position: gl.getAttribLocation(quadTest_program, "aPosition"),
+            textureCoord: gl.getAttribLocation(quadTest_program, "aTextureCoord"),
+        },
+        uniforms: {
+            sampler: gl.getUniformLocation(quadTest_program, "uSampler"),
+        },
+        buffers: initQuadBuffers(gl)
+    };
+    return quadTest_programInfo;
+}
+
+function drawTestQuad(gl, programInfo, texture) {
+    gl.useProgram(programInfo.program);
+    gl.disable(gl.DEPTH_TEST);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, programInfo.buffers.vertexBuffer);
+    gl.vertexAttribPointer(programInfo.attributes.position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(programInfo.attributes.position);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, programInfo.buffers.textureBuffer);
+    gl.vertexAttribPointer(programInfo.attributes.textureCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(programInfo.attributes.textureCoord);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); // ?
+
+    gl.uniform1i(programInfo.uniforms.sampler, 0);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.enable(gl.DEPTH_TEST);
+
 }
 
 async function main() {
@@ -47,8 +102,10 @@ async function main() {
     /** @type {WebGL2RenderingContext} */
     let gl = canvas.getContext("webgl2");
     const ext = gl.getExtension("OES_texture_float");
-    let {frameBufShadowMap, textureShadowMap} =createFrameBufferShadowMap(gl);
+    let {frameBufShadowMap, textureShadowMap, textureColorShadowMap} =createFrameBufferShadowMap(gl);
 
+
+    let quadTest_programInfo = await initQuadTestProgram(gl);
 
     let shadow_program = await initShaderProgram(gl, "vertex_shadowmap.vs", "fragment_empty.fs");
 
@@ -221,6 +278,8 @@ async function main() {
     const settings = new Settings();
     const camera = new Camera(mouse);
 
+    const shadowCamera = new Camera(mouse);
+
     function checkResize() {
         if (canvas.width !== canvas.clientWidth || canvas.height != canvas.clientHeight) {
             canvas.width = canvas.clientWidth;
@@ -305,30 +364,48 @@ async function main() {
                 console.error("unknown scene " + settings.scene.toString());
         }
 
-        // Shadow Map
-        {
-            let ortho_shadowMap = mat4.create();
-            mat4.ortho(ortho_shadowMap, 0, 0, SHADOW_MAP_DIM, SHADOW_MAP_DIM, 0.1, far_perspective * 5);
+        let ortho_shadowMap = mat4.create();
+        let ortho_bounds = 20;
+            mat4.ortho(ortho_shadowMap, -ortho_bounds, ortho_bounds, -ortho_bounds, ortho_bounds, 0.1, far_perspective);
 
-            let dirLightPositionFake = vec3.clone(settings.dirLightDirection);
-            vec3.scale(dirLightPositionFake, dirLightPositionFake, -far_perspective);
-            let viewMatrixDirLight = mat4.create();
-            mat4.lookAt(viewMatrixDirLight, dirLightPositionFake, [0,0,0], [0,1,0]);
+        // Shadow Map
+        /*{
+            
+            
+            let directionalLightPositionFake = vec3.clone(settings.dirLightDirection);
+            vec3.scale(directionalLightPositionFake, directionalLightPositionFake, -1);
+
+            shadowCamera.pos = directionalLightPositionFake;
+            let cameraFront = vec3.clone(settings.dirLightDirection);
+            vec3.normalize(cameraFront, cameraFront);
+            shadowCamera.front = cameraFront;
+            shadowCamera.updateViewMatrix();
+
+            //let viewMatrixDirLight = mat4.create();
+            //mat4.lookAt(viewMatrixDirLight, directionalLightPositionFake, [0,0,0], [0,1,0]);
 
             gl.bindFramebuffer(gl.FRAMEBUFFER, frameBufShadowMap);
-            gl.clear(gl.DEPTH_BUFFER_BIT);
+            gl.enable(gl.DEPTH_TEST);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             gl.viewport(0,0,SHADOW_MAP_DIM,SHADOW_MAP_DIM);
             for (let scene of scenesToRender) {
-                scene.drawShadowMap(gl, { programInfo: shadow_programInfo, orthoMatrix: ortho_shadowMap, viewMatrix: viewMatrixDirLight});
+                scene.drawShadowMap(gl, { programInfo: shadow_programInfo, orthoMatrix: ortho_shadowMap, viewMatrix: shadowCamera.viewMatrix});
             }
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
             doResize();
-        }
+        }*/
+
+        // Test Quad
+        //drawTestQuad(gl, quadTest_programInfo, textureColorShadowMap);
     
-        
+        gl.bindFramebuffer(gl.FRAMEBUFFER, frameBufShadowMap);
+            gl.enable(gl.DEPTH_TEST);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.viewport(0,0,SHADOW_MAP_DIM,SHADOW_MAP_DIM);
+
         // Objects
         for (let scene of scenesToRender) {
-            scene.drawScene(gl, { settings, camera, currentPointLightPosition: lightPosCurrent, perspectiveMatrix, skybox: skybox.cubeMap, textureShadowMap });
+            scene.drawScene(gl, { settings, camera: camera, currentPointLightPosition: lightPosCurrent, perspectiveMatrix: perspectiveMatrix, skybox: skybox.cubeMap, textureShadowMap });
         }
 
         // Skybox
@@ -351,6 +428,12 @@ async function main() {
         gl.drawArrays(gl.TRIANGLES, 0, 36);
         gl.depthMask(true);
 
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        doResize();
+
+        drawTestQuad(gl, quadTest_programInfo, textureColorShadowMap);
+
+        
         requestAnimationFrame(render);
     }
 

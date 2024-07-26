@@ -15,7 +15,7 @@ export default class Settings {
         this.lightMovement = true;
         
         this.isDirLighting = true;
-        this.dirLightDirection = vec3.fromValues(-2.0,-1.0,0.0);
+        this.dirLightDirection = vec3.fromValues(1.0,-5.0,-1.0);
         this.dirLightAmbient = vec3.fromValues(0.1,0.1,0.2);
         this.dirLightDiffuse = vec3.fromValues(0.2,0.2,0.6);
         this.dirLightSpecular = vec3.fromValues(1.0,1.0,1.0);
@@ -167,6 +167,24 @@ export default class Settings {
         ctrl_lightZ.onchange = (event) => {
             this.lightPosition[2] = event.target.value;
         };
+
+        let ctrl_dirLightX = document.getElementById("ctrl_dirLightPosX");
+        let ctrl_dirLightY = document.getElementById("ctrl_dirLightPosY");
+        let ctrl_dirLightZ = document.getElementById("ctrl_dirLightPosZ");
+        ctrl_dirLightX.value = this.dirLightDirection[0];
+        ctrl_dirLightY.value = this.dirLightDirection[1];
+        ctrl_dirLightZ.value = this.dirLightDirection[2];
+
+        ctrl_dirLightX.onchange = (event) => {
+            this.dirLightDirection[0] = event.target.value;
+        };
+        ctrl_dirLightY.onchange = (event) => {
+            this.dirLightDirection[1] = event.target.value;
+        };
+        ctrl_dirLightZ.onchange = (event) => {
+            this.dirLightDirection[2] = event.target.value;
+        };
+
 
         let ctrl_attenuationLinear = document.getElementById("ctrl_attenuationLinear");
         let ctrl_attenuationSquare = document.getElementById("ctrl_attenuationSquare");
